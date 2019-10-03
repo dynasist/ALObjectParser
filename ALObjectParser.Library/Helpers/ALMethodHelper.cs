@@ -43,7 +43,7 @@ namespace ALObjectParser.Library
                     writer.WriteLine();
                     writer.Indent--;
 
-                    result = stringWriter.ToString().Replace("}", "");
+                    result = stringWriter.ToString().Replace("}", "").Trim();
                 }
             }
 

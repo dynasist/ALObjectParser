@@ -175,7 +175,7 @@ namespace ALObjectParser.Library
         public virtual void OnWriteObjectMethods(IndentedTextWriter writer, IALObject Target, List<ITestFeature> Features = null)
         {
             var methods = Target.Methods.Select(s => s.Write());
-            var methodTxt = String.Join("\r\n", methods);
+            var methodTxt = String.Join("\r\n\r\n    ", methods);
 
             writer.Indent++;
             writer.WriteLine(methodTxt);
