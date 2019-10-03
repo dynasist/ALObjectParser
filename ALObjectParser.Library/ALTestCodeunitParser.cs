@@ -17,31 +17,7 @@ namespace ALObjectParser.Library
         public ALTestCodeunitParser(string FilePath) : base(FilePath)
         {
             ALObject = new ALCodeunit();
-        }
-
-
-        public override string OnWrite(IALObject Target, List<ITestFeature> Features = null)
-        {
-            var result = "";
-            using (var stringWriter = new StringWriter())
-            {
-                using (var writer = new IndentedTextWriter(stringWriter))
-                {
-                    var methods = Target.Methods.Select(s => s.Write());
-                    var methodTxt = String.Join("\r\n", methods);
-
-                    writer.WriteLine($"{Target.Type} {Target.Id} {Target.Name}");
-                    writer.WriteLine("{");
-                    writer.Indent++;
-                    writer.WriteLine(methodTxt);
-                    writer.Indent--;
-                    writer.WriteLine("}");                    
-                }
-
-                result = stringWriter.ToString();
-            }
-
-            return result;
+            Path = FilePath;
         }
     }
 }

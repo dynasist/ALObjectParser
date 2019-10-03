@@ -29,7 +29,7 @@ namespace ALObjectParser.Library
                         parameterTxt = String.Join(';', method.Parameters.Select(s => $"{(s.IsVar ? "var " : "")}{s.Name}: {s.Type}"));
                     }
 
-                    writer.WriteLine($"{(method.IsLocal ? "local " : "")} {method.MethodKind} {method.Name}({parameterTxt}){(!String.IsNullOrEmpty(method.ReturnType) ? ": " + method.ReturnType : "")}");
+                    writer.WriteLine($"{(method.IsLocal ? "local " : "")}{method.MethodKind} {method.Name}({parameterTxt}){(!String.IsNullOrEmpty(method.ReturnType) ? ": " + method.ReturnType : "")}");
                     if (String.IsNullOrEmpty(method.Content))
                     {
                         writer.WriteLine("begin");

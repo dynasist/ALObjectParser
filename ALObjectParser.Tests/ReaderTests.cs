@@ -17,7 +17,7 @@ namespace ALObjectParser.Tests
         }
 
         [Test]
-        public void TestCodeunit_Has_Procedures()
+        public void TestCodeunit_Verify_Procedures()
         {
             var result = parser.Read(lines);
 
@@ -25,7 +25,7 @@ namespace ALObjectParser.Tests
         }
 
         [Test]
-        public void TestCodeunit_Procedure_Has_Parameters()
+        public void TestCodeunit_Procedure_Verify_Parameters()
         {
             var result = parser.Read(lines);
 
@@ -33,19 +33,33 @@ namespace ALObjectParser.Tests
         }
 
         [Test]
-        public void TestCodeunit_Procedure_Has_ReturnType()
+        [TestCase(0, false)] // Has Return Type
+        [TestCase(1, true)] // Does not have Return Type
+        public void TestCodeunit_Procedure_Verify_ReturnType(int index, bool expected)
         {
             var result = parser.Read(lines);
+            var actual = string.IsNullOrEmpty(result.Methods[index].ReturnType.Trim()) == expected;
 
-            Assert.IsTrue(!string.IsNullOrEmpty(result.Methods.First().ReturnType.Trim()));
+            Assert.IsTrue(actual);
         }
 
         [Test]
-        public void TestCodeunit_Procedure_Has_NO_ReturnType()
+        public void TestCodeunit_Procedure_Verify_TestAttribute()
         {
             var result = parser.Read(lines);
 
-            Assert.IsTrue(string.IsNullOrEmpty(result.Methods.ElementAt(1).ReturnType.Trim()));
+            Assert.IsTrue(result.Methods.First().TestMethod);
+        }
+
+        [Test]
+        [TestCase(0, false)]
+        [TestCase(12, true)]
+        public void TestCodeunit_Procedure_Verify_IsLocal(int index, bool expected)
+        {
+            var result = parser.Read(lines);
+            var actual = result.Methods[index].IsLocal == expected;
+
+            Assert.IsTrue(actual);
         }
     }
 }

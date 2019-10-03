@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace ALObjectParser.Library
             Path = FilePath;
         }
 
-        #region Read file
+        #region Read Object from file
 
         public IALObject Read()
         {
@@ -41,9 +42,7 @@ namespace ALObjectParser.Library
         }
 
         public virtual void OnRead(List<string> Lines, IALObject info)
-        {
-
-        }
+        { }
 
         public void GetObjectInfo(List<string> Lines, IALObject Target)
         {
@@ -63,7 +62,12 @@ namespace ALObjectParser.Library
                 Target.Id = int.Parse(items.Groups[2].Value);
                 Target.Name = items.Groups[3].Value;
             }
+
+            OnGetObjectInfo(line, Target);
         }
+
+        public virtual void OnGetObjectInfo(string Line, IALObject Target)
+        { }
 
         public void GetMethods(List<string> Lines, IALObject Target)
         {
@@ -146,7 +150,36 @@ namespace ALObjectParser.Library
 
         public virtual string OnWrite(IALObject Target, List<ITestFeature> Features = null)
         {
-            return "";
+            var result = "";
+            using (var stringWriter = new StringWriter())
+            {
+                using (var writer = new IndentedTextWriter(stringWriter))
+                {
+                    OnWriteObjectHeader(writer, Target, Features);
+                    writer.WriteLine("{");
+                    OnWriteObjectMethods(writer, Target, Features);
+                    writer.WriteLine("}");
+                }
+
+                result = stringWriter.ToString();
+            }
+
+            return result;
+        }
+
+        public virtual void OnWriteObjectHeader(IndentedTextWriter writer, IALObject Target, List<ITestFeature> Features = null)
+        {
+            writer.WriteLine($"{Target.Type} {Target.Id} {Target.Name}");
+        }
+
+        public virtual void OnWriteObjectMethods(IndentedTextWriter writer, IALObject Target, List<ITestFeature> Features = null)
+        {
+            var methods = Target.Methods.Select(s => s.Write());
+            var methodTxt = String.Join("\r\n", methods);
+
+            writer.Indent++;
+            writer.WriteLine(methodTxt);
+            writer.Indent--;
         }
 
         #endregion
