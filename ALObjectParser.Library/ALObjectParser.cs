@@ -145,7 +145,7 @@ namespace ALObjectParser.Library
 
         public string Write(IALObject Target, List<ITestFeature> Features = null)
         {
-            return OnWrite(ALObject, Features);
+            return OnWrite(Target, Features);
         }
 
         public virtual string OnWrite(IALObject Target, List<ITestFeature> Features = null)
@@ -155,8 +155,7 @@ namespace ALObjectParser.Library
             {
                 using (var writer = new IndentedTextWriter(stringWriter))
                 {
-                    OnWriteObjectHeader(writer, Target, Features);
-                    writer.WriteLine("{");
+                    OnWriteObjectHeader(writer, Target, Features);                    
                     OnWriteObjectMethods(writer, Target, Features);
                     writer.WriteLine("}");
                 }
@@ -170,16 +169,22 @@ namespace ALObjectParser.Library
         public virtual void OnWriteObjectHeader(IndentedTextWriter writer, IALObject Target, List<ITestFeature> Features = null)
         {
             writer.WriteLine($"{Target.Type} {Target.Id} {Target.Name}");
+            writer.WriteLine("{");
         }
 
         public virtual void OnWriteObjectMethods(IndentedTextWriter writer, IALObject Target, List<ITestFeature> Features = null)
         {
-            var methods = Target.Methods.Select(s => s.Write());
+            var methods = Target.Methods.Select(s => OnWriteObjectMethod(s));
             var methodTxt = String.Join("\r\n\r\n    ", methods);
 
             writer.Indent++;
             writer.WriteLine(methodTxt);
             writer.Indent--;
+        }
+
+        public virtual string OnWriteObjectMethod(ALMethod method)
+        {
+            return method.Write();
         }
 
         #endregion

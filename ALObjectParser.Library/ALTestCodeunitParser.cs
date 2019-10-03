@@ -19,5 +19,19 @@ namespace ALObjectParser.Library
             ALObject = new ALCodeunit();
             Path = FilePath;
         }
+
+        public override void OnWriteObjectHeader(IndentedTextWriter writer, IALObject Target, List<ITestFeature> Features = null)
+        {
+            base.OnWriteObjectHeader(writer, Target, Features);
+            writer.Indent++;
+            writer.WriteLine("SubType = Test;");
+            writer.WriteLine();
+            writer.Indent--;
+        }
+
+        public override string OnWriteObjectMethod(ALMethod method)
+        {
+            return base.OnWriteObjectMethod(method);
+        }
     }
 }

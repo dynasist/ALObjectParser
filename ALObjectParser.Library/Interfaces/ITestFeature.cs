@@ -4,9 +4,10 @@ using System.Text;
 
 namespace ALObjectParser.Library
 {
-    public interface ITestScenario
+    public interface ITestFeature
     {
-        int ID { get; set; }
         string Name { get; set; }
+
+        ICollection<ITestScenario> Scenarios { get; set; }
     }
 }
