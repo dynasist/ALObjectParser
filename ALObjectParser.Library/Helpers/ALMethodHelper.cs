@@ -10,6 +10,11 @@ namespace ALObjectParser.Library
 {
     public static class ALMethodHelper
     {
+        public static T ToEnum<T>(this string value)
+        {
+            return (T)Enum.Parse(typeof(T), value, true);
+        }
+
         public static string Write(this ALMethod method)
         {
             var result = "";
@@ -17,14 +22,8 @@ namespace ALObjectParser.Library
             {
                 using (var writer = new IndentedTextWriter(stringWriter))
                 {
-                    bool HasScenario = method.Scenario != null;
-
                     writer.Indent++;
                     writer.WriteLine();
-                    if (method.TestMethod)
-                    {
-                        writer.WriteLine("[Test]");
-                    }
 
                     var parameterTxt = "";
                     if (method.Parameters.Count > 0)
@@ -36,36 +35,7 @@ namespace ALObjectParser.Library
 
                     if (String.IsNullOrEmpty(method.Content))
                     {
-                        if (HasScenario)
-                        {
-                            writer.WriteLine(method.Scenario.Feature.Write());
-                        }
-
                         writer.WriteLine("begin");
-
-                        if (HasScenario)
-                        {
-                            writer.Indent++;
-
-                            writer.WriteLine(method.Scenario.Write());
-                            writer.WriteLine("Initialize();");
-                            if (method.Scenario.Elements != null)
-                            {
-                                writer.WriteLine();
-                                method.Scenario.Elements
-                                    .ToList()
-                                    .ForEach(e => {
-                                        writer.WriteLine(e.Write());
-                                        writer.WriteLine(e.WriteMethod());
-                                        writer.WriteLine();
-                                    });
-
-                                writer.WriteLine();
-                            }
-
-                            writer.Indent--;
-                        }
-
                         writer.WriteLine("end;");
                     }
                     else
@@ -97,9 +67,26 @@ namespace ALObjectParser.Library
             return $"// [{element.Type}] {element.Value}";
         }
 
-        public static string WriteMethod(this ITestScenarioElement element)
+        public static string WriteMethod(this ITestScenarioElement element, ALParserConfig config = null)
         {
-            return $"{element.Value.SanitizeName()}();";
+            var prefix = "";
+            switch (element.Type)
+            {
+                case ScenarioElementType.GIVEN:
+                    prefix = config != null ? config.GivenFunctionPrefix : "Create";
+                    break;
+                case
+                ScenarioElementType.WHEN:
+                    prefix = config != null ? config.WhenFunctionPrefix : "Assign";
+                    break;
+                case ScenarioElementType.THEN:
+                    prefix = config != null ? config.ThenFunctionPrefix : "Verify";
+                    break;
+                default:
+                    break;
+            }
+
+            return $"{prefix}{element.Value.SanitizeName()}";
         }
 
         public static string SanitizeName(this string name)

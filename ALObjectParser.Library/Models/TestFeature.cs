@@ -7,7 +7,7 @@ namespace ALObjectParser.Library
     {
         public TestFeature()
         {
-            Scenarios = new List<TestScenario>() as ICollection<ITestScenario>;
+            Scenarios = new List<ITestScenario>();
         }
 
         public string Name { get; set; }

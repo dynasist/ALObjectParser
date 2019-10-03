@@ -9,20 +9,36 @@ namespace ALObjectParser.Library
 {
     public class ALObjectParser
     {
+        #region Properties
+
+        public ALParserConfig Config { get; set; }
+
         public IALObject ALObject { get; set; }
 
         public string Path { get; set; }
 
+        #endregion
+
+        #region Constructors
+
         public ALObjectParser()
         {
             ALObject = new ALObject();
+            Config = new ALParserConfig();
         }
 
         public ALObjectParser(string FilePath): base()
         {
-            ALObject = new ALObject();
             Path = FilePath;
         }
+
+        public ALObjectParser(ALParserConfig config): base()
+        {
+            Config = config;
+            Path = Config.FilePath;
+        }
+
+        #endregion
 
         #region Read Object from file
 
@@ -41,7 +57,7 @@ namespace ALObjectParser.Library
             return ALObject;
         }
 
-        public virtual void OnRead(List<string> Lines, IALObject info)
+        public virtual void OnRead(List<string> Lines, IALObject Target)
         { }
 
         public void GetObjectInfo(List<string> Lines, IALObject Target)
@@ -155,9 +171,9 @@ namespace ALObjectParser.Library
             {
                 using (var writer = new IndentedTextWriter(stringWriter))
                 {
-                    OnWriteObjectHeader(writer, Target, Features);                    
+                    OnWriteObjectHeader(writer, Target, Features);
                     OnWriteObjectMethods(writer, Target, Features);
-                    writer.WriteLine("}");
+                    OnWriteObjectFooter(writer, Target, Features);
                 }
 
                 result = stringWriter.ToString();
@@ -174,20 +190,24 @@ namespace ALObjectParser.Library
 
         public virtual void OnWriteObjectMethods(IndentedTextWriter writer, IALObject Target, List<ITestFeature> Features = null)
         {
-            var methods = Target.Methods.Select(s => OnWriteObjectMethod(s));
-            var methodTxt = String.Join("\r\n\r\n    ", methods);
+            var methods = Target.Methods.Select(method => OnWriteObjectMethod(Target, method));
+            var methodTxt = String.Join("\r\n\r\n\t", methods);
 
             writer.Indent++;
             writer.WriteLine(methodTxt);
             writer.Indent--;
         }
 
-        public virtual string OnWriteObjectMethod(ALMethod method)
+        public virtual void OnWriteObjectFooter(IndentedTextWriter writer, IALObject Target, List<ITestFeature> Features = null)
+        {
+            writer.WriteLine("}");
+        }
+
+        public virtual string OnWriteObjectMethod(IALObject Target, ALMethod method)
         {
             return method.Write();
         }
 
         #endregion
-
     }
 }

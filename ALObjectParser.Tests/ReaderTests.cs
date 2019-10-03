@@ -61,5 +61,16 @@ namespace ALObjectParser.Tests
 
             Assert.IsTrue(actual);
         }
+
+        [Test]
+        public void TestCodeunit_Verify_TestFeaturesAndScenarios()
+        {
+            var result = parser.Read(lines);
+
+            // There should be 1 Feature + 3 Scenarios
+            Assert.IsTrue(result.Features.Count == 1);
+            Assert.IsTrue(result.Features.SelectMany(s => s.Scenarios).Count() == 3);
+        }
+
     }
 }
