@@ -6,7 +6,7 @@ namespace ALObjectParser.Library
 {
     public enum ScenarioElementType
     {
-        FEATURE,
+        FEATURE = 0,
         SCENARIO,
         GIVEN,
         WHEN,

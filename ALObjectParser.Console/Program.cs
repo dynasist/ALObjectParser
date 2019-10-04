@@ -14,6 +14,7 @@ namespace ALObjectParser.Cmd
             var codeunit = parser.Read();
 
             Console.WriteLine($"Object info: {codeunit.Type} {codeunit.Id} {codeunit.Name}");
+            Console.WriteLine($"Object path: {parser.Path}");
             Console.WriteLine("-----------------------------------------------------------");
             foreach (var feature in codeunit.Features)
             {

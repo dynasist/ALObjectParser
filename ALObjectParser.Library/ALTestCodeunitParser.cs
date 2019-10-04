@@ -126,21 +126,11 @@ namespace ALObjectParser.Library
             {
                 if (Target.Methods.Count > 0)
                 {
-                    //TODO: implement merging scenarios
+                    MergeFeatures(Target, Features);
                 }
                 else
                 {
-                    Target.Methods = Features
-                        .SelectMany(s => s.Scenarios)
-                        .Select(s => new ALMethod()
-                        {
-                            Name = s.Name.SanitizeName(),
-                            TestMethod = true,
-                            Scenario = s,
-                            MethodKind = "procedure",
-                            Content = ""
-                        })
-                        .ToList();
+                    FeaturesToMethods(Target, Features);
                 }
             }
 
@@ -216,15 +206,15 @@ namespace ALObjectParser.Library
                     if (method.Scenario.Elements != null)
                     {
                         writer.WriteLine();
-                        method.Scenario.Elements
+                        method.Scenario
+                            .Elements
+                            .OrderBy(o => o.Type)
                             .ToList()
                             .ForEach(e => {
                                 writer.WriteLine(e.Write());
                                 writer.WriteLine(e.WriteMethod(Config) + "();");
                                 writer.WriteLine();
                             });
-
-                        writer.WriteLine();
                     }
 
                     writer.Indent--;
@@ -232,16 +222,20 @@ namespace ALObjectParser.Library
 
                 writer.WriteLine("end;");
 
-                method.Scenario.Elements.ToList().ForEach(e =>
-                {
-                    if (!Target.Methods.Any(a => a.Name == e.WriteMethod(Config)))
+                method.Scenario
+                    .Elements
+                    .OrderBy(o => o.Type)
+                    .ToList()
+                    .ForEach(e =>
                     {
-                        writer.WriteLine();
-                        writer.WriteLine($"local procedure {e.WriteMethod(Config)}()");
-                        writer.WriteLine("begin");
-                        writer.WriteLine("end;");
-                    }
-                });
+                        if (!Target.Methods.Any(a => a.Name == e.WriteMethod(Config)))
+                        {
+                            writer.WriteLine();
+                            writer.WriteLine($"local procedure {e.WriteMethod(Config)}()");
+                            writer.WriteLine("begin");
+                            writer.WriteLine("end;");
+                        }
+                    });
             }
             else
             {
@@ -256,6 +250,106 @@ namespace ALObjectParser.Library
             {
                 writer.WriteLine();
                 writer.WriteLine("//#endregion");
+            }
+        }
+
+        #endregion
+
+        #region Merge Feature-sets or create a new set
+
+        public void FeaturesToMethods(IALObject Target, List<ITestFeature> Features = null)
+        {
+            if (Features == null)
+                return;
+
+            if (Features.Count == 0)
+                return;
+
+            Target.Methods.AddRange(Features
+                .SelectMany(s => s.Scenarios)
+                .Select(s => new ALMethod()
+                {
+                    Name = s.Name.SanitizeName(),
+                    TestMethod = true,
+                    Scenario = s,
+                    MethodKind = "procedure",
+                    Content = ""
+                })
+                .ToList()
+            );
+        }
+
+        public void MergeFeatures(IALObject Target, List<ITestFeature> Features = null)
+        {
+            if (Features == null)
+                return;
+
+            if (Features.Count == 0)
+                return;
+
+            var identical = Target.Features.SequenceEqual(Features, new TestFeatureComparer());
+            if (identical)
+            {
+                return;
+            }
+
+            // add new features
+            var newFeatures = Features.Except(Target.Features, new TestFeatureNameComparer()).ToList();
+            if (newFeatures.Count() > 0)
+            {
+                Target.Features.AddRange(newFeatures);
+
+                FeaturesToMethods(Target, newFeatures);
+            }
+
+            // check same feature for new scenarios
+            foreach(var feature in Target.Features)
+            {
+                var UpdatedFeature = Features.FirstOrDefault(f => f.Name == feature.Name);
+                if (UpdatedFeature != null)
+                {
+                    var newScenarios = UpdatedFeature.Scenarios.Except(feature.Scenarios, new TestScenarioIDComparer()).ToList();
+                    if (newScenarios.Count > 0)
+                    {
+                        (feature.Scenarios as List<ITestScenario>).AddRange(newScenarios);
+                        Target.Methods.AddRange(newScenarios
+                            .Select(s => new ALMethod()
+                            {
+                                Name = s.Name.SanitizeName(),
+                                TestMethod = true,
+                                Scenario = s,
+                                MethodKind = "procedure",
+                                Content = ""
+                            })
+                            .ToList()
+                        );
+                    }
+                }
+            }
+
+            // check existing scenarios for updates
+            var CurrentScenarios = Target.Features.SelectMany(s => s.Scenarios).ToList();
+            var UpdatedScenarios = Features.SelectMany(s => s.Scenarios).ToList();
+
+            foreach (var scenario in CurrentScenarios)
+            {
+                var UpdatedScenario = UpdatedScenarios
+                    .Where(w => w.Feature.Name == scenario.Feature.Name && w.ID == scenario.ID)
+                    .FirstOrDefault();
+
+                if (UpdatedScenario != null)
+                {
+                    scenario.Name = UpdatedScenario.Name;
+                    scenario.ID = UpdatedScenario.ID;
+                    scenario.Elements = UpdatedScenario.Elements.ToList();
+
+                    var method = Target.Methods.Where(w => w.Scenario == scenario).FirstOrDefault();
+                    if (method != null)
+                    {
+                        method.Scenario = UpdatedScenario;
+                        method.Content = ""; //TODO!! Update content instead of recreation
+                    }
+                }
             }
         }
 
