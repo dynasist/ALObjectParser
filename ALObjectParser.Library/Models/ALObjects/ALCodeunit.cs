@@ -6,7 +6,7 @@ namespace ALObjectParser.Library
     {
         public ALCodeunit()
         {
-            Type = "codeunit";
+            Type = ALObjectType.codeunit;
         }
     }
 }

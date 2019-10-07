@@ -7,31 +7,56 @@ using System.Text.RegularExpressions;
 
 namespace ALObjectParser.Library
 {
+    /// <summary>
+    /// Read/Write AL Language formatted files
+    /// Base implementation that provides basic information processing
+    /// </summary>
     public class ALObjectParser
     {
         #region Properties
 
+        /// <summary>
+        /// Config object that can be passed from PowerShell/Commadline, etc..
+        /// </summary>
         public ALParserConfig Config { get; set; }
 
+        /// <summary>
+        /// Current AL Object that is being processed
+        /// </summary>
         public IALObject ALObject { get; set; }
 
+        /// <summary>
+        /// File path of object to read from or write to 
+        /// </summary>
         public string Path { get; set; }
 
         #endregion
 
         #region Constructors
 
+        /// <summary>
+        /// Base constructor
+        /// </summary>
         public ALObjectParser()
         {
             ALObject = new ALObject();
             Config = new ALParserConfig();
         }
 
+        /// <summary>
+        /// Constructor for PowerShell/Commadline
+        /// </summary>
+        /// <param name="FilePath">Filesystem path of AL Object</param>
         public ALObjectParser(string FilePath): base()
         {
             Path = FilePath;
         }
 
+        /// <summary>
+        /// Constructor for PowerShell/Commadline
+        /// Path is part of the config objectt in this case
+        /// </summary>
+        ///<param name="config"><see cref="ALParserConfig"/></param>
         public ALObjectParser(ALParserConfig config): base()
         {
             Config = config;
@@ -42,12 +67,21 @@ namespace ALObjectParser.Library
 
         #region Read Object from file
 
+        /// <summary>
+        /// Read File specified in "Path" property
+        /// </summary>
+        /// <returns></returns>
         public IALObject Read()
         {
             var Lines = File.ReadAllLines(this.Path);
             return Read(Lines.ToList());
         }
 
+        /// <summary>
+        /// Read File contents converted to String array
+        /// </summary>
+        /// <param name="Lines">Array of textlines</param>
+        /// <returns></returns>
         public IALObject Read(List<string> Lines)
         {
             GetObjectInfo(Lines, ALObject);
@@ -57,9 +91,19 @@ namespace ALObjectParser.Library
             return ALObject;
         }
 
+        /// <summary>
+        /// Method to implement custom processing during parsing
+        /// </summary>
+        /// <param name="Lines"></param>
+        /// <param name="Target"></param>
         public virtual void OnRead(List<string> Lines, IALObject Target)
         { }
 
+        /// <summary>
+        /// Basic object information, such as Type, ID, Name
+        /// </summary>
+        /// <param name="Lines">Array of textlines</param>
+        /// <param name="Target">Current ALObject instance</param>
         public void GetObjectInfo(List<string> Lines, IALObject Target)
         {
             var pattern = @"([a-z]+)\s([0-9]+)\s(.*)";
@@ -70,7 +114,7 @@ namespace ALObjectParser.Library
             if (!string.IsNullOrEmpty(line))
             {
                 var items = Regex.Match(line, pattern);
-                var type = items.Groups[1].Value;
+                var type = items.Groups[1].Value.ToEnum<ALObjectType>();
                 if (type != Target.Type)
                 {
                     throw new FileLoadException($"This AL Object has a different type than referenced implementation. Expected: {Target.Type} -> Actual: {type}");
@@ -82,9 +126,19 @@ namespace ALObjectParser.Library
             OnGetObjectInfo(line, Target);
         }
 
+        /// <summary>
+        /// Method to implement custom  for extended classes
+        /// </summary>
+        /// <param name="Line">Top line of object definition</param>
+        /// <param name="Target">Current ALObject instance</param>
         public virtual void OnGetObjectInfo(string Line, IALObject Target)
         { }
 
+        /// <summary>
+        /// Parse method of AL Object: triggers and procedures as well
+        /// </summary>
+        /// <param name="Lines">Array of textlines</param>
+        /// <param name="Target">Current ALObject instance</param>
         public void GetMethods(List<string> Lines, IALObject Target)
         {
             var pattern = @"(procedure|trigger)\s+(.*?)\((.*?)\)\:?(.*)";
@@ -153,17 +207,34 @@ namespace ALObjectParser.Library
 
         #region Write Object to file
 
+        /// <summary>
+        /// Generate a new filecontent from a TestFeature set
+        /// Prepared for PowerShell cmdlets
+        /// </summary>
+        /// <param name="Features">TestFeature set to generate AL Methods</param>
         public void Write(List<ITestFeature> Features = null)
         {
             var objectTxt = Write(ALObject, Features);
             File.WriteAllText(Path, objectTxt);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Target">Current ALObject instance</param>
+        /// <param name="Features">TestFeature set to be merged with AL Methods</param>
+        /// <returns></returns>
         public string Write(IALObject Target, List<ITestFeature> Features = null)
         {
             return OnWrite(Target, Features);
         }
 
+        /// <summary>
+        /// Extensible function
+        /// </summary>
+        /// <param name="Target">Current ALObject instance</param>
+        /// <param name="Features">TestFeature set to be merge with AL Methods</param>
+        /// <returns></returns>
         public virtual string OnWrite(IALObject Target, List<ITestFeature> Features = null)
         {
             var result = "";

@@ -5,3 +5,4 @@
 /.vs
 *Tests/bin
 **/obj
+/ALObjectParser.Library/ALObjectParser.Library.csproj.user

@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ALObjectParser.Library</name>
+    </assembly>
+    <members>
+        <member name="T:ALObjectParser.Library.ALObjectParser">
+            <summary>
+            Read/Write AL Language formatted files
+            Base implementation that provides basic information processing
+            </summary>
+        </member>
+        <member name="P:ALObjectParser.Library.ALObjectParser.Config">
+            <summary>
+            Config object that can be passed from PowerShell/Commadline, etc..
+            </summary>
+        </member>
+        <member name="P:ALObjectParser.Library.ALObjectParser.ALObject">
+            <summary>
+            Current AL Object that is being processed
+            </summary>
+        </member>
+        <member name="P:ALObjectParser.Library.ALObjectParser.Path">
+            <summary>
+            File path of object to read from or write to 
+            </summary>
+        </member>
+        <member name="M:ALObjectParser.Library.ALObjectParser.#ctor">
+            <summary>
+            Base constructor
+            </summary>
+        </member>
+        <member name="M:ALObjectParser.Library.ALObjectParser.#ctor(System.String)">
+            <summary>
+            Constructor for PowerShell/Commadline
+            </summary>
+            <param name="FilePath">Filesystem path of AL Object</param>
+        </member>
+        <member name="M:ALObjectParser.Library.ALObjectParser.#ctor(ALObjectParser.Library.ALParserConfig)">
+             <summary>
+             Constructor for PowerShell/Commadline
+             Path is part of the config objectt in this case
+             </summary>
+            <param name="config"><see cref="T:ALObjectParser.Library.ALParserConfig"/></param>
+        </member>
+        <member name="M:ALObjectParser.Library.ALObjectParser.Read">
+            <summary>
+            Read File specified in "Path" property
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ALObjectParser.Library.ALObjectParser.Read(System.Collections.Generic.List{System.String})">
+            <summary>
+            Read File contents converted to String array
+            </summary>
+            <param name="Lines">Array of textlines</param>
+            <returns></returns>
+        </member>
+        <member name="M:ALObjectParser.Library.ALObjectParser.OnRead(System.Collections.Generic.List{System.String},ALObjectParser.Library.IALObject)">
+            <summary>
+            Method to implement custom processing during parsing
+            </summary>
+            <param name="Lines"></param>
+            <param name="Target"></param>
+        </member>
+        <member name="M:ALObjectParser.Library.ALObjectParser.GetObjectInfo(System.Collections.Generic.List{System.String},ALObjectParser.Library.IALObject)">
+            <summary>
+            Basic object information, such as Type, ID, Name
+            </summary>
+            <param name="Lines">Array of textlines</param>
+            <param name="Target">Current ALObject instance</param>
+        </member>
+        <member name="M:ALObjectParser.Library.ALObjectParser.OnGetObjectInfo(System.String,ALObjectParser.Library.IALObject)">
+            <summary>
+            Method to implement custom  for extended classes
+            </summary>
+            <param name="Line">Top line of object definition</param>
+            <param name="Target">Current ALObject instance</param>
+        </member>
+        <member name="M:ALObjectParser.Library.ALObjectParser.GetMethods(System.Collections.Generic.List{System.String},ALObjectParser.Library.IALObject)">
+            <summary>
+            Parse method of AL Object: triggers and procedures as well
+            </summary>
+            <param name="Lines">Array of textlines</param>
+            <param name="Target">Current ALObject instance</param>
+        </member>
+        <member name="M:ALObjectParser.Library.ALObjectParser.Write(System.Collections.Generic.List{ALObjectParser.Library.ITestFeature})">
+            <summary>
+            Generate a new filecontent from a TestFeature set
+            Prepared for PowerShell cmdlets
+            </summary>
+            <param name="Features">TestFeature set to generate AL Methods</param>
+        </member>
+        <member name="M:ALObjectParser.Library.ALObjectParser.Write(ALObjectParser.Library.IALObject,System.Collections.Generic.List{ALObjectParser.Library.ITestFeature})">
+            <summary>
+            
+            </summary>
+            <param name="Target">Current ALObject instance</param>
+            <param name="Features">TestFeature set to be merged with AL Methods</param>
+            <returns></returns>
+        </member>
+        <member name="M:ALObjectParser.Library.ALObjectParser.OnWrite(ALObjectParser.Library.IALObject,System.Collections.Generic.List{ALObjectParser.Library.ITestFeature})">
+            <summary>
+            Extensible function
+            </summary>
+            <param name="Target">Current ALObject instance</param>
+            <param name="Features">TestFeature set to be merge with AL Methods</param>
+            <returns></returns>
+        </member>
+        <member name="T:ALObjectParser.Library.TestScenario">
+            <summary>
+            Test Scenario object
+            </summary>
+        </member>
+        <member name="M:ALObjectParser.Library.TestScenario.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,10 +1,9 @@
 namespace ALObjectParser.Library
 {
-    public class ALParameter
+    public class ALVariable
     {
         public string Name { get; set; }
         public string Type { get; set; }
-
-        public bool IsVar { get; set; }
+        public bool IsTemporary { get; set; }
     }
 }
