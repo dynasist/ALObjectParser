@@ -20,7 +20,7 @@ namespace ALObjectParser.Tests
         public void WriteBackExistingObject_UpdatedParameter()
         {
             var alobject = parser.Read(lines);
-            alobject.Methods[0].Parameters[0].Name = "UpdatedParameter_NewNameGiven";
+            alobject.Methods.ElementAt(0).Parameters.ElementAt(0).Name = "UpdatedParameter_NewNameGiven";
 
             var result = parser.Write(alobject);
 
