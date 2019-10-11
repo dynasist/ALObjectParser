@@ -15,6 +15,9 @@ namespace ALObjectParser
         codeunit,
         xmlport,
         query,
-        controladdin
+        controladdin,
+        @enum,
+        dotnet,
+        profile
     }
 }
