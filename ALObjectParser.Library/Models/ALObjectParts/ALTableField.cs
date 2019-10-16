@@ -8,6 +8,9 @@ namespace ALObjectParser.Library
     {
         public int Id { get; set; }
         public string Name { get; set; }
+
+        public ALTypeDefinition TypeDefinition { get; set; } 
+
         public IEnumerable<ALProperty> Properties {get; set;}
     }
 }

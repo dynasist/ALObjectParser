@@ -15,6 +15,6 @@ namespace ALObjectParser.Library
 
         public List<ALMethod> Methods { get; set; }
         public List<ITestFeature> Features { get; set; }
-
+        public IEnumerable<ALProperty> Properties { get; set; }
     }
 }

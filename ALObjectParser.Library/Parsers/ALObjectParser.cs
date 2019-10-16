@@ -49,6 +49,8 @@ namespace ALObjectParser.Library
         /// <param name="FilePath">Filesystem path of AL Object</param>
         public ALObjectParser(string FilePath): base()
         {
+            ALObject = new ALObject();
+            Config = new ALParserConfig();
             Path = FilePath;
         }
 
@@ -59,6 +61,7 @@ namespace ALObjectParser.Library
         ///<param name="config"><see cref="ALParserConfig"/></param>
         public ALObjectParser(ALParserConfig config): base()
         {
+            ALObject = new ALObject();
             Config = config;
             Path = Config.FilePath;
         }
@@ -117,7 +120,8 @@ namespace ALObjectParser.Library
                 var type = items.Groups[1].Value.ToEnum<ALObjectType>();
                 if (type != Target.Type)
                 {
-                    throw new FileLoadException($"This AL Object has a different type than referenced implementation. Expected: {Target.Type} -> Actual: {type}");
+                    //throw new FileLoadException($"This AL Object has a different type than referenced implementation. Expected: {Target.Type} -> Actual: {type}");
+                    Target.Type = type;
                 }
                 Target.Id = int.Parse(items.Groups[2].Value);
                 Target.Name = items.Groups[3].Value;
