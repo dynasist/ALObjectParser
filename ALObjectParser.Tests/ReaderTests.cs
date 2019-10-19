@@ -13,7 +13,7 @@ namespace ALObjectParser.Tests
             var result = parser.Read(lines);
 
             Assert.AreEqual(81000, result.Id);
-            Assert.AreEqual(@"""LookupValue UT Customer""", result.Name);
+            Assert.AreEqual(@"LookupValue UT Customer", result.Name);
         }
 
         [Test]

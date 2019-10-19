@@ -118,13 +118,50 @@ namespace ALObjectParser.Library
             {
                 var items = Regex.Match(line, pattern);
                 var type = items.Groups[1].Value.ToEnum<ALObjectType>();
-                if (type != Target.Type)
+
+                switch (type)   
                 {
-                    //throw new FileLoadException($"This AL Object has a different type than referenced implementation. Expected: {Target.Type} -> Actual: {type}");
-                    Target.Type = type;
+                    case ALObjectType.table:
+                        ALObject = new ALTable();
+                        break;
+                    case ALObjectType.tableextension:
+                        ALObject = new ALTableExtension();
+                        break;
+                    case ALObjectType.page:
+                        ALObject = new ALPage();
+                        break;
+                    case ALObjectType.pagecustomization:
+                        ALObject = new ALPageCustomization();
+                        break;
+                    case ALObjectType.pageextension:
+                        ALObject = new ALPageExtension();
+                        break;
+                    case ALObjectType.report:
+                        break;
+                    case ALObjectType.codeunit:
+                        ALObject = new ALCodeunit();
+                        break;
+                    case ALObjectType.xmlport:
+                        break;
+                    case ALObjectType.query:
+                        break;
+                    case ALObjectType.controladdin:
+                        break;
+                    case ALObjectType.@enum:
+                        break;
+                    case ALObjectType.dotnet:
+                        break;
+                    case ALObjectType.profile:
+                        break;
+                    default:
+                        break;
                 }
+
+                Target = ALObject;
+
                 Target.Id = int.Parse(items.Groups[2].Value);
-                Target.Name = items.Groups[3].Value;
+                Target.Name = items.Groups[3].Value.Replace("\"", "");
+                Target.Type = type;
             }
 
             OnGetObjectInfo(line, Target);
@@ -259,7 +296,7 @@ namespace ALObjectParser.Library
 
         public virtual void OnWriteObjectHeader(IndentedTextWriter writer, IALObject Target, List<ITestFeature> Features = null)
         {
-            writer.WriteLine($"{Target.Type} {Target.Id} {Target.Name}");
+            writer.WriteLine($"{Target.Type} {Target.Id} {(Target.Name.Contains(' ') ? $"\"{Target.Name}\"" : Target.Name)}");
             writer.WriteLine("{");
         }
 
