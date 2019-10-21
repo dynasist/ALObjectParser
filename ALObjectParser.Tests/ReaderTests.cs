@@ -10,7 +10,7 @@ namespace ALObjectParser.Tests
         [Test]
         public void TestCodeunit_ID_Name()
         {
-            var result = parser.Read(lines);
+            var result = ALParser.ReadSingle(testPath);
 
             Assert.AreEqual(81000, result.Id);
             Assert.AreEqual(@"LookupValue UT Customer", result.Name);
@@ -19,7 +19,7 @@ namespace ALObjectParser.Tests
         [Test]
         public void TestCodeunit_Verify_Procedures()
         {
-            var result = parser.Read(lines);
+            var result = ALParser.ReadSingle(testPath);
 
             Assert.IsTrue(result.Methods.Count > 0);
         }
@@ -27,7 +27,7 @@ namespace ALObjectParser.Tests
         [Test]
         public void TestCodeunit_Procedure_Verify_Parameters()
         {
-            var result = parser.Read(lines);
+            var result = ALParser.ReadSingle(testPath);
 
             Assert.IsTrue(result.Methods.First().Parameters.Count > 0);
         }
@@ -37,8 +37,8 @@ namespace ALObjectParser.Tests
         [TestCase(1, true)] // Does not have Return Type
         public void TestCodeunit_Procedure_Verify_ReturnType(int index, bool expected)
         {
-            var result = parser.Read(lines);
-            var actual = string.IsNullOrEmpty(result.Methods[index].ReturnType.Trim()) == expected;
+            var result = ALParser.ReadSingle(testPath);
+            var actual = string.IsNullOrEmpty(result.Methods.ElementAt(index).ReturnType.Trim()) == expected;
 
             Assert.IsTrue(actual);
         }
@@ -46,8 +46,7 @@ namespace ALObjectParser.Tests
         [Test]
         public void TestCodeunit_Procedure_Verify_TestAttribute()
         {
-            var result = parser.Read(lines);
-
+            var result = ALParser.ReadSingle(testPath);
             Assert.IsTrue(result.Methods.First().TestMethod);
         }
 
@@ -56,20 +55,10 @@ namespace ALObjectParser.Tests
         [TestCase(12, true)]
         public void TestCodeunit_Procedure_Verify_IsLocal(int index, bool expected)
         {
-            var result = parser.Read(lines);
-            var actual = result.Methods[index].IsLocal == expected;
+            var result = ALParser.ReadSingle(testPath);
+            var actual = result.Methods.ElementAt(index).IsLocal == expected;
 
             Assert.IsTrue(actual);
-        }
-
-        [Test]
-        public void TestCodeunit_Verify_TestFeaturesAndScenarios()
-        {
-            var result = parser.Read(lines);
-
-            // There should be 1 Feature + 3 Scenarios
-            Assert.IsTrue(result.Features.Count == 1);
-            Assert.IsTrue(result.Features.SelectMany(s => s.Scenarios).Count() == 3);
         }
 
     }

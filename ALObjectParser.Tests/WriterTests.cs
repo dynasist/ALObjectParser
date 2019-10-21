@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace ALObjectParser.Tests
 {
+    /*
     public class WriterTests : TestBase
     {
         [Test]
@@ -201,4 +202,5 @@ namespace ALObjectParser.Tests
             return features;
         }
     }
+    */
 }

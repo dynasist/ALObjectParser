@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace ALObjectParser.Library
 {
-    public class ALTestCodeunitParser : ALObjectParser
+    /*public class ALTestCodeunitParser : ALObjectParser
     {
         public ALTestCodeunitParser(): base()
         {
@@ -354,5 +354,5 @@ namespace ALObjectParser.Library
         }
 
         #endregion
-    }
+    }*/
 }

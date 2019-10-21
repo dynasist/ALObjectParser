@@ -7,14 +7,15 @@ namespace ALObjectParser.Library
         public ALObject()
         {
             Methods = new List<ALMethod>();
+            Properties = new List<ALProperty>();
         }
 
         public int Id { get; set; }
         public ALObjectType Type { get; set; }
         public string Name { get; set; }
 
-        public List<ALMethod> Methods { get; set; }
-        public List<ITestFeature> Features { get; set; }
-        public IEnumerable<ALProperty> Properties { get; set; }
+        public ICollection<ALMethod> Methods { get; set; }
+        public ICollection<ITestFeature> Features { get; set; }
+        public ICollection<ALProperty> Properties { get; set; }
     }
 }

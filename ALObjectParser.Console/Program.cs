@@ -10,11 +10,10 @@ namespace ALObjectParser.Cmd
         static void Main(string[] args)
         {
             var path = args != null && args.Count() > 0 ? args[0] : @".\test_cu.al";
-            var parser = new ALTestCodeunitParser(path);
-            var codeunit = parser.Read();
+            var codeunit = ALParser.ReadSingle(path);
 
             Console.WriteLine($"Object info: {codeunit.Type} {codeunit.Id} {codeunit.Name}");
-            Console.WriteLine($"Object path: {parser.Path}");
+            Console.WriteLine($"Object path: {path}");
             Console.WriteLine("-----------------------------------------------------------");
             foreach (var feature in codeunit.Features)
             {
