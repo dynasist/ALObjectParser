@@ -10,10 +10,11 @@ namespace ALObjectParser.Tests
         [Test]
         public void TestCodeunit_ID_Name()
         {
-            var result = ALParser.ReadSingle(testPath);
+            var result = ALParser.Read(testPath);
 
-            Assert.AreEqual(81000, result.Id);
-            Assert.AreEqual(@"LookupValue UT Customer", result.Name);
+            Assert.AreEqual(result.Count(), 2);
+            Assert.AreEqual(81000, result.ElementAt(1).Id);
+            Assert.AreEqual(@"LookupValue UT Customer", result.ElementAt(1).Name);
         }
 
         [Test]

@@ -5,31 +5,38 @@ using System.Linq;
 
 namespace ALObjectParser.Tests
 {
-    /*
+
     public class WriterTests : TestBase
     {
         [Test]
         public void WriteBackExistingObject_NoChange()
         {
-            var alobject = parser.Read(lines);
-            var result = parser.Write(alobject);
+            var alobjects = ALParser.Read(testPath);
+            foreach (var obj in alobjects)
+            {
+                var result = ALParser.Write(obj);
+                Assert.IsNotEmpty(result);
+            }
 
-            Assert.IsNotEmpty(result);
+            var allobjStr = ALParser.Write(alobjects);
+            Assert.IsNotEmpty(allobjStr);
         }
+    
 
         [Test]
         public void WriteBackExistingObject_UpdatedParameter()
         {
-            var alobject = parser.Read(lines);
+            var alobjects = ALParser.Read(testPath);
+            var alobject = alobjects.ElementAt(1);
             alobject.Methods.ElementAt(0).Parameters.ElementAt(0).Name = "UpdatedParameter_NewNameGiven";
 
-            var result = parser.Write(alobject);
+            var result = ALParser.Write(alobjects);
 
             Assert.IsNotEmpty(result);
             Assert.IsTrue(result.Contains("UpdatedParameter_NewNameGiven"));
         }
 
-        [Test]
+        /*[Test]
         public void WriteNewObject_FromALObjectClass()
         {
             var alobject = new ALCodeunit
@@ -200,7 +207,7 @@ namespace ALObjectParser.Tests
             features.Add(feature);
 
             return features;
-        }
+        }*/
     }
-    */
+    
 }

@@ -46,11 +46,47 @@ namespace ALObjectParser.Library
             ALParser.Write<ALObjectWriterBase>(Target, Path);
         }
 
+        public static void Write(IEnumerable<IALObject> Target, string Path)
+        {
+            ALParser.Write<ALObjectWriterBase>(Target, Path);
+        }
+
+        public static string Write(IALObject Target)
+        {
+            return ALParser.Write<ALObjectWriterBase>(Target);
+        }
+
+        public static string Write(IEnumerable<IALObject> Target)
+        {
+            return ALParser.Write<ALObjectWriterBase>(Target);
+        }
+
         public static void Write<T>(IALObject Target, string Path)
             where T : ALObjectWriterBase, new()
         {
             var writer = new T();
             writer.Write(Target, Path);
+        }
+
+        public static void Write<T>(IEnumerable<IALObject> Target, string Path)
+            where T : ALObjectWriterBase, new()
+        {
+            var writer = new T();
+            writer.Write(Target, Path);
+        }
+
+        public static string Write<T>(IALObject Target)
+            where T : ALObjectWriterBase, new()
+        {
+            var writer = new T();
+            return writer.Write(Target);
+        }
+
+        public static string Write<T>(IEnumerable<IALObject> Target)
+            where T : ALObjectWriterBase, new()
+        {
+            var writer = new T();
+            return writer.Write(Target);
         }
     }
 }

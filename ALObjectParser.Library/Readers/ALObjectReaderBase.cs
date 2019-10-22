@@ -16,10 +16,17 @@ namespace ALObjectParser.Library
 
         public IEnumerable<IALObject> Read(string Path)
         {
-            throw new NotImplementedException();
+            var Lines = File.ReadAllLines(Path);
+            var splittedLines = GetObjectInfos(Lines);
 
-            //var Lines = File.ReadAllLines(Path);
-            //return new List<IALObject>(); // Read(Lines.ToList());
+            var result = new List<IALObject>();
+            foreach (var objLines in splittedLines)
+            {
+                var obj = Read(objLines);
+                result.Add(obj);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -29,7 +36,7 @@ namespace ALObjectParser.Library
         public IALObject ReadSingle(string Path)
         {
             var Lines = File.ReadAllLines(Path);
-            return Read(Lines.ToList());
+            return Read(Lines);
         }
 
         public T Read<T>(string Path) 
@@ -64,6 +71,39 @@ namespace ALObjectParser.Library
         /// <param name="Target"></param>
         public virtual void OnRead(IEnumerable<string> Lines, IALObject Target)
         { }
+
+        public IEnumerable<IEnumerable<string>> GetObjectInfos(IEnumerable<string> Lines)
+        {
+            var pattern = @"([a-z]+)\s([0-9]+)\s(.*)";
+            var contents = Lines.ToList();
+            var headers = contents
+                .Where(w => Regex.IsMatch(w.ToLower(), pattern))
+                .AsQueryable()
+                .Select(s => contents.IndexOf(s))
+                .ToList();
+
+            if (headers.Count() < 2)
+            {
+                return new List<IEnumerable<string>>() { Lines };
+            }
+
+            var result = new List<IEnumerable<string>>();
+            var c = headers.Count();
+            for (int i = 0; i < c; i++)    
+            {
+                var startIndex = headers[i];
+                var endIndex = Lines.Count()-1;
+                var j = i + 1;
+                if (j < c)
+                {
+                    endIndex = headers[j];
+                }
+
+                result.Add(contents.GetRange(startIndex, endIndex-startIndex));
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Basic object information, such as Type, ID, Name

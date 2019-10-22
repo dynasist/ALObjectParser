@@ -18,9 +18,16 @@ namespace ALObjectParser.Library
         /// <param name="Path"></param>
         public void Write(IEnumerable<IALObject> Target, string Path)
         {
-            var objectTxts = Target.Select(s =>  Write(s));
-            var objectTxt = string.Join($"{Environment.NewLine}", objectTxts);
+            var objectTxt = Write(Target);
             File.WriteAllText(Path, objectTxt);
+        }
+
+        public string Write(IEnumerable<IALObject> Target)
+        {
+            var objectTxts = Target.Select(s => Write(s));
+            var objectTxt = string.Join($"{Environment.NewLine}", objectTxts);
+
+            return objectTxt;
         }
 
         /// <summary>
