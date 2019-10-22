@@ -21,8 +21,8 @@ steps:
   inputs:
     command: 'restore'
     restoreSolution: '**/*.sln'
-    #feedsToUse: 'config'
-    #nugetConfigPath: './Nuget.config'
+    feedsToUse: 'config'
+    nugetConfigPath: './Nuget.config'
 
 - task: VSBuild@1
   inputs:
@@ -33,7 +33,7 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'test'
-    publishTestResults: true
+    #publishTestResults: true
 
 - task: DotNetCoreCLI@2
   inputs:
