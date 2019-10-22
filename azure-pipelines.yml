@@ -6,8 +6,8 @@
 trigger:
 - parse-refactor
 
-#pool:
-#  vmImage: 'windows-latest'
+pool:
+  vmImage: 'windows-latest'
 
 variables:
   solution: '**/*.sln'
