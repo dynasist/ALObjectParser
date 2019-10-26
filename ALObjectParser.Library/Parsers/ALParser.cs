@@ -18,6 +18,11 @@ namespace ALObjectParser.Library
             return ALParser.Read<ALObjectReaderBase>(Path);
         }
 
+        public static IEnumerable<IALObject> ReadObjectInfos(string Path)
+        {
+            return ALParser.ReadObjectInfos<ALObjectReaderBase>(Path);
+        }
+
         public static IALObject ReadSingle(string Path)
         {
             return ALParser.ReadSingle<ALObjectReaderBase>(Path);
@@ -28,6 +33,15 @@ namespace ALObjectParser.Library
         {
             var reader = new T();
             var result = reader.Read(Path);
+
+            return result;
+        }
+
+        public static IEnumerable<IALObject> ReadObjectInfos<T>(string Path)
+            where T : ALObjectReaderBase, new()
+        {
+            var reader = new T();
+            var result = reader.ReadObjectInfos(Path);
 
             return result;
         }

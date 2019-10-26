@@ -36,31 +36,26 @@ namespace ALObjectParser.Tests
             Assert.IsTrue(result.Contains("UpdatedParameter_NewNameGiven"));
         }
 
-        /*[Test]
+        [Test]
         public void WriteNewObject_FromALObjectClass()
         {
             var alobject = new ALCodeunit
             {
                 Id = 81000,
                 Name = "Test Codeunit",
-                Features = new List<ITestFeature>(),
                 Methods = new List<ALMethod>()
             };
 
-            var features = GetFeatures();
-            alobject.Features = features;
-            var scenario = features.ElementAt(0).Scenarios.ElementAt(0);
-
-            var method = new ALMethod { TestMethod = true, Name = "Test Method", MethodKind = "procedure", Scenario = scenario };
+            var method = new ALMethod { TestMethod = true, Name = "TestMethod", MethodKind = "procedure" };
 
             alobject.Methods.Add(method);
 
-            var result = parser.Write(alobject);
+            var result = ALParser.Write(alobject);
 
             Assert.IsNotEmpty(result);
         }
 
-        [Test]
+        /*[Test]
         public void WriteNewObject_FromFeatures()
         {
             var alobject = new ALCodeunit

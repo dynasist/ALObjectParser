@@ -8,7 +8,7 @@ namespace ALObjectParser.Library
         ALObjectType Type { get; set; }
         string Name { get; set; }
         ICollection<ALMethod> Methods { get; set; }
-        ICollection<ITestFeature> Features { get; set; }
         ICollection<ALProperty> Properties { get; set; }
+        ICollection<ALComment> Comments { get; set; }
     }
 }

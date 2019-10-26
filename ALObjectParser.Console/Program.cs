@@ -15,20 +15,13 @@ namespace ALObjectParser.Cmd
             Console.WriteLine($"Object info: {codeunit.Type} {codeunit.Id} {codeunit.Name}");
             Console.WriteLine($"Object path: {path}");
             Console.WriteLine("-----------------------------------------------------------");
-            foreach (var feature in codeunit.Features)
+            foreach (var method in codeunit.Methods)
             {
-                Console.WriteLine($"Test Feature: {feature.Name} including {feature.Scenarios.Count()} scenario(s)");
+                Console.WriteLine($"Method: {method.Name} including {method.Parameters.Count()} pparameter(s)");
                 Console.WriteLine();
-                foreach (var scenario in feature.Scenarios)
+                foreach (var param in method.Parameters)
                 {
-                    Console.WriteLine($"  Test Scenario: #{scenario.ID} {scenario.Name}");
-
-                    foreach (var element in scenario.Elements)
-                    {
-                        Console.WriteLine($"    {element.Type}: {element.Value}");
-                    }
-
-                    Console.WriteLine();
+                    Console.WriteLine($"  Parameter: #{param.Name} {param.Type}");
                 }
                 Console.WriteLine("-----------------------------------------------------------");
             }

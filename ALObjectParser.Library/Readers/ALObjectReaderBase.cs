@@ -17,13 +17,29 @@ namespace ALObjectParser.Library
         public IEnumerable<IALObject> Read(string Path)
         {
             var Lines = File.ReadAllLines(Path);
-            var splittedLines = GetObjectInfos(Lines);
+            var splittedLines = SplitObjectLines(Lines);
 
             var result = new List<IALObject>();
             foreach (var objLines in splittedLines)
             {
                 var obj = Read(objLines);
                 result.Add(obj);
+            }
+
+            return result;
+        }
+
+        public IEnumerable<IALObject> ReadObjectInfos(string Path)
+        {
+            var Lines = File.ReadAllLines(Path);
+            var headerLines = GetObjectHeaderLines(Lines);
+
+            var result = new List<IALObject>();
+            foreach (var header in headerLines)
+            {
+                IALObject Target;
+                GetObjectInfo(header, out Target);
+                result.Add(Target);
             }
 
             return result;
@@ -72,13 +88,11 @@ namespace ALObjectParser.Library
         public virtual void OnRead(IEnumerable<string> Lines, IALObject Target)
         { }
 
-        public IEnumerable<IEnumerable<string>> GetObjectInfos(IEnumerable<string> Lines)
+        public IEnumerable<IEnumerable<string>> SplitObjectLines(IEnumerable<string> Lines)
         {
-            var pattern = @"([a-z]+)\s([0-9]+)\s(.*)";
             var contents = Lines.ToList();
-            var headers = contents
-                .Where(w => Regex.IsMatch(w.ToLower(), pattern))
-                .AsQueryable()
+            var headerLines = GetObjectHeaderLines(contents);
+            var headers = headerLines                
                 .Select(s => contents.IndexOf(s))
                 .ToList();
 
@@ -105,6 +119,15 @@ namespace ALObjectParser.Library
             return result;
         }
 
+        public IEnumerable<string> GetObjectHeaderLines(IEnumerable<string> Lines)
+        {
+            var pattern = @"([a-z]+)\s([0-9]+)\s(.*)";
+            var headers = Lines
+                .Where(w => Regex.IsMatch(w.ToLower(), pattern));               
+
+            return headers;
+        }
+
         /// <summary>
         /// Basic object information, such as Type, ID, Name
         /// </summary>
@@ -117,6 +140,19 @@ namespace ALObjectParser.Library
             var line = Lines
                 .Where(w => Regex.IsMatch(w.ToLower(), pattern))
                 .FirstOrDefault();
+
+            GetObjectInfo(line, out Target);
+        }
+
+        /// <summary>
+        /// Basic object information, such as Type, ID, Name
+        /// </summary>
+        /// <param name="Lines">Array of textlines</param>
+        /// <param name="Target">Current ALObject instance</param>
+        public void GetObjectInfo(string line, out IALObject Target)
+        {
+            Target = new ALObject();
+            var pattern = @"([a-z]+)\s([0-9]+)\s(.*)";
 
             if (!string.IsNullOrEmpty(line))
             {

@@ -8,6 +8,7 @@ namespace ALObjectParser.Library
         {
             Parameters = new List<ALParameter>();
             Attributes = new List<ALAttribute>();
+            Comments = new List<ALComment>();
         }
 
         public string Name { get; set; }
@@ -16,8 +17,8 @@ namespace ALObjectParser.Library
         public bool IsLocal { get; set; }
         public ICollection<ALParameter> Parameters { get; set; }
         public string ReturnType { get; set; }
-        public ITestScenario Scenario { get; set; }
         public string Content { get; set; }
         public ICollection<ALAttribute> Attributes { get; set; }
+        public IEnumerable<ALComment> Comments { get; set; }
     }
 }
