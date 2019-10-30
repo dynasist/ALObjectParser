@@ -9,14 +9,14 @@ namespace ALObjectParser.Library
         public ALObjectTypeMap()
         {
             Add(ALObjectType.table, typeof(ALTable));
-            Add(ALObjectType.tableextension, typeof(ALTable));
-            Add(ALObjectType.page, typeof(ALTable));
-            Add(ALObjectType.pagecustomization, typeof(ALTable));
-            Add(ALObjectType.pageextension, typeof(ALTable));
+            Add(ALObjectType.tableextension, typeof(ALTableExtension));
+            Add(ALObjectType.page, typeof(ALPage));
+            Add(ALObjectType.pagecustomization, typeof(ALPageCustomization));
+            Add(ALObjectType.pageextension, typeof(ALPageExtension));
             Add(ALObjectType.report, typeof(ALTable));
             Add(ALObjectType.xmlport, typeof(ALTable));
             Add(ALObjectType.query, typeof(ALTable));
-            Add(ALObjectType.codeunit, typeof(ALTable));
+            Add(ALObjectType.codeunit, typeof(ALCodeunit));
             Add(ALObjectType.controladdin, typeof(ALTable));
             Add(ALObjectType.dotnet, typeof(ALTable));
             Add(ALObjectType.@enum, typeof(ALTable));

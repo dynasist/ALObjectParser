@@ -226,10 +226,15 @@ namespace ALObjectParser.Library
         /// <param name="Target">Current ALObject instance</param>
         public void GetMethods(IEnumerable<string> Lines, IALObject Target)
         {
-            var pattern = @"(procedure|trigger)\s+(.*?)\((.*?)\)\:?(.*)";
+            var pattern = @"^\s{0,4}(local|procedure|trigger)\s+(.*?)\((.*?)\)\:?(.*)";
             var procedures = Lines
                 .Where(w => Regex.IsMatch(w, pattern))
                 .ToList();
+
+            if (procedures.Count() == 0)
+            {
+                return;
+            }
 
             Target.Methods = procedures
             .Select(s =>
