@@ -72,5 +72,23 @@ namespace ALObjectParser.Tests
             Assert.IsTrue(actual);
         }
 
+        [Test]
+        public void Read_Comments_Object()
+        {
+            var result = ALParser.Read(testPath);
+            var actual = result.ElementAt(1).Comments;
+
+            Assert.IsTrue(actual.Count() > 0);
+        }
+
+        [Test]
+        public void Read_Comments_Methods()
+        {
+            var result = ALParser.Read(testPath);
+            var actual = result.ElementAt(1).Methods.FirstOrDefault(f => f.Name == "CheckThatLabelCanBeAssignedToCustomer");
+
+            Assert.IsTrue(actual.MethodBody.Comments.Count() == 6);
+        }
+
     }
 }

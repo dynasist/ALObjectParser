@@ -9,8 +9,12 @@ namespace ALObjectParser.Library
 {
     public class ALObjectReaderBase
     {
+        public string ObjectHeaderPattern { get; set; }
+
         public ALObjectReaderBase()
-        { }
+        {
+            ObjectHeaderPattern = @"^([a-z]+)\s(?(1)([0-9]+|))(.*)";
+        }
 
         #region Read Object from file
 
@@ -74,6 +78,7 @@ namespace ALObjectParser.Library
             IALObject Target;
             GetObjectInfo(Lines, out Target);
             GetMethods(Lines, Target);
+            GetComments(Lines, Target);
             GetObjectProperties(Lines, Target);
             OnRead(Lines, Target);
 
@@ -121,9 +126,8 @@ namespace ALObjectParser.Library
 
         public IEnumerable<string> GetObjectHeaderLines(IEnumerable<string> Lines)
         {
-            var pattern = @"([a-z]+)\s([0-9]+)\s(.*)";
             var headers = Lines
-                .Where(w => Regex.IsMatch(w.ToLower(), pattern));               
+                .Where(w => Regex.IsMatch(w.ToLower(), ObjectHeaderPattern));               
 
             return headers;
         }
@@ -136,9 +140,8 @@ namespace ALObjectParser.Library
         public void GetObjectInfo(IEnumerable<string> Lines, out IALObject Target)
         {
             Target = new ALObject();
-            var pattern = @"([a-z]+)\s([0-9]+)\s(.*)";
             var line = Lines
-                .Where(w => Regex.IsMatch(w.ToLower(), pattern))
+                .Where(w => Regex.IsMatch(w.ToLower(), ObjectHeaderPattern))
                 .FirstOrDefault();
 
             GetObjectInfo(line, out Target);
@@ -152,54 +155,20 @@ namespace ALObjectParser.Library
         public void GetObjectInfo(string line, out IALObject Target)
         {
             Target = new ALObject();
-            var pattern = @"([a-z]+)\s([0-9]+)\s(.*)";
 
             if (!string.IsNullOrEmpty(line))
             {
-                var items = Regex.Match(line, pattern);
+                var items = Regex.Match(line, ObjectHeaderPattern);
                 var type = items.Groups[1].Value.ToEnum<ALObjectType>();
+                var idTxt = items.Groups[2].Value;
 
-                switch (type)
+                Target = ALObjectTypeMap.CreateInstance(type);
+                Target.Id = 0;
+                if (!String.IsNullOrEmpty(idTxt))
                 {
-                    case ALObjectType.table:
-                        Target = new ALTable();
-                        break;
-                    case ALObjectType.tableextension:
-                        Target = new ALTableExtension();
-                        break;
-                    case ALObjectType.page:
-                        Target = new ALPage();
-                        break;
-                    case ALObjectType.pagecustomization:
-                        Target = new ALPageCustomization();
-                        break;
-                    case ALObjectType.pageextension:
-                        Target = new ALPageExtension();
-                        break;
-                    case ALObjectType.report:
-                        break;
-                    case ALObjectType.codeunit:
-                        Target = new ALCodeunit();
-                        break;
-                    case ALObjectType.xmlport:
-                        break;
-                    case ALObjectType.query:
-                        break;
-                    case ALObjectType.controladdin:
-                        break;
-                    case ALObjectType.@enum:
-                        break;
-                    case ALObjectType.dotnet:
-                        break;
-                    case ALObjectType.profile:
-                        break;
-                    default:
-                        break;
+                    Target.Id = int.Parse(items.Groups[2].Value);
                 }
-
-
-                Target.Id = int.Parse(items.Groups[2].Value);
-                Target.Name = items.Groups[3].Value.Replace("\"", "");
+                Target.Name = items.Groups[3].Value.Replace("\"", "").Trim();
                 Target.Type = type;
             }
 
@@ -304,7 +273,17 @@ namespace ALObjectParser.Library
                 {
                     end = Lines.Count();
                 }
-                var body = string.Join("\r\n", txtLines.GetRange(start, end - start - 1));
+
+                var bodyLines = txtLines.GetRange(start, end - start - 1);
+                var body = string.Join("\r\n", bodyLines);
+                var comments = GetComments(bodyLines);
+                method.MethodBody = new ALMethodBody
+                {
+                    Comments = comments,
+                    Content = body,
+                    ContentLines = bodyLines
+                };
+
                 method.Content = body;
 
                 // Check for Test Attribute
@@ -318,6 +297,36 @@ namespace ALObjectParser.Library
                 return method;
             })
             .ToList();
+        }
+
+        public void GetComments(IEnumerable<string> Lines, IALObject Target)
+        {
+            var comments = GetComments(Lines);
+            Target.Comments = comments;
+        }
+
+        public ICollection<ALComment> GetComments(IEnumerable<string> Lines)
+        {
+            var pattern = @"\/\/";
+            var comments = new List<ALComment>();
+            var c = Lines.Count();
+
+            for (int i = 0; i < c; i++)
+            {
+                var line = Lines.ElementAt(i);
+                if (Regex.IsMatch(line, pattern)) {
+
+                    var comment = new ALComment
+                    {
+                        Content = line,
+                        StartPos = i,
+                        EndPos = i
+                    };
+                    comments.Add(comment);
+                }
+            }
+
+            return comments;
         }
 
         #endregion

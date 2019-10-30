@@ -18,6 +18,7 @@ namespace ALObjectParser.Library
         public ICollection<ALParameter> Parameters { get; set; }
         public string ReturnType { get; set; }
         public string Content { get; set; }
+        public ALMethodBody MethodBody { get; set; }
         public ICollection<ALAttribute> Attributes { get; set; }
         public IEnumerable<ALComment> Comments { get; set; }
     }
