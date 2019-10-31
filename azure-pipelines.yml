@@ -4,10 +4,10 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
 trigger:
-- parse-refactor
+- master
 
-pool:
-  vmImage: 'windows-latest'
+#pool:
+#  vmImage: 'windows-latest'
 
 variables:
   solution: '**/*.sln'
@@ -46,3 +46,4 @@ steps:
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
     artifactName: 'ALObjectParser'
+
