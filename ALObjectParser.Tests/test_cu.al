@@ -1,4 +1,37 @@
-﻿codeunit 81000 "LookupValue UT Customer"
+﻿page 88971 "ATDDTestFeatures_DSK"
+{
+    Caption = 'ATDD Test Features';
+    PageType = List;
+    SourceTable = "ATDDTestFeature_DSK";
+    UsageCategory = Lists;
+    ApplicationArea = All;
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Group)
+            {
+
+                field("Code"; "Code")
+                {
+                    ApplicationArea = All;
+                    //Caption = 'Code';
+                }
+
+                field("Name"; "Name")
+                {
+                    ApplicationArea = All;
+                    //Caption = 'Name';
+                }
+
+            }
+        }
+    }
+
+}
+
+codeunit 81000 "LookupValue UT Customer"
 {
     // Generated on 2019. 09. 28. at 22:11 by MártonSági
     

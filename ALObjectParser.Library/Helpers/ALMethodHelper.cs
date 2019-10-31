@@ -31,7 +31,7 @@ namespace ALObjectParser.Library
                         parameterTxt = String.Join(';', method.Parameters.Select(s => $"{(s.IsVar ? "var " : "")}{s.Name}: {s.Type}"));
                     }
 
-                    writer.WriteLine($"{(method.IsLocal ? "local " : "")}{method.MethodKind} {method.Name}({parameterTxt}){(!String.IsNullOrEmpty(method.ReturnType) ? ": " + method.ReturnType : "")}");
+                    writer.WriteLine($"{(method.IsLocal ? "local " : "")}{method.MethodKind} {(method.Name.Contains(" ") ? $"\"{method.Name}\"": method.Name)}({parameterTxt}){(!String.IsNullOrEmpty(method.ReturnType) ? ": " + method.ReturnType : "")}");
 
                     if (String.IsNullOrEmpty(method.Content))
                     {
@@ -48,56 +48,6 @@ namespace ALObjectParser.Library
                     result = stringWriter.ToString().Replace("}", "").Trim();
                 }
             }
-
-            return result;
-        }
-
-        public static string Write(this ITestFeature feature)
-        {
-            return $"// [FEATURE] {feature.Name}";
-        }
-
-        public static string Write(this ITestScenario scenario)
-        {
-            return $"// [SCENARIO #{scenario.ID:0000}] {scenario.Name}";
-        }
-
-        public static string Write(this ITestScenarioElement element)
-        {
-            return $"// [{element.Type}] {element.Value}";
-        }
-
-        public static string WriteMethod(this ITestScenarioElement element, ALParserConfig config = null)
-        {
-            var prefix = "";
-            switch (element.Type)
-            {
-                case ScenarioElementType.GIVEN:
-                    prefix = config != null ? config.GivenFunctionPrefix : "Create";
-                    break;
-                case
-                ScenarioElementType.WHEN:
-                    prefix = config != null ? config.WhenFunctionPrefix : "Assign";
-                    break;
-                case ScenarioElementType.THEN:
-                    prefix = config != null ? config.ThenFunctionPrefix : "Verify";
-                    break;
-                default:
-                    break;
-            }
-
-            return $"{prefix}{element.Value.SanitizeName()}";
-        }
-
-        public static string SanitizeName(this string name)
-        {
-            var result = 
-                String.Join("", 
-                    Regex
-                        .Split(name, @"\W", RegexOptions.CultureInvariant)
-                        .Where(s => !string.IsNullOrEmpty(s))
-                        .Select(s => Regex.Replace(s, "^.", m => m.Value.ToUpperInvariant()))
-                );
 
             return result;
         }

@@ -10,26 +10,18 @@ namespace ALObjectParser.Cmd
         static void Main(string[] args)
         {
             var path = args != null && args.Count() > 0 ? args[0] : @".\test_cu.al";
-            var parser = new ALTestCodeunitParser(path);
-            var codeunit = parser.Read();
+            var codeunit = ALParser.ReadSingle(path);
 
             Console.WriteLine($"Object info: {codeunit.Type} {codeunit.Id} {codeunit.Name}");
-            Console.WriteLine($"Object path: {parser.Path}");
+            Console.WriteLine($"Object path: {path}");
             Console.WriteLine("-----------------------------------------------------------");
-            foreach (var feature in codeunit.Features)
+            foreach (var method in codeunit.Methods)
             {
-                Console.WriteLine($"Test Feature: {feature.Name} including {feature.Scenarios.Count()} scenario(s)");
+                Console.WriteLine($"Method: {method.Name} including {method.Parameters.Count()} pparameter(s)");
                 Console.WriteLine();
-                foreach (var scenario in feature.Scenarios)
+                foreach (var param in method.Parameters)
                 {
-                    Console.WriteLine($"  Test Scenario: #{scenario.ID} {scenario.Name}");
-
-                    foreach (var element in scenario.Elements)
-                    {
-                        Console.WriteLine($"    {element.Type}: {element.Value}");
-                    }
-
-                    Console.WriteLine();
+                    Console.WriteLine($"  Parameter: #{param.Name} {param.Type}");
                 }
                 Console.WriteLine("-----------------------------------------------------------");
             }

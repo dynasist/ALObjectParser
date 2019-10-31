@@ -5,24 +5,32 @@ using System.Linq;
 
 namespace ALObjectParser.Tests
 {
+
     public class WriterTests : TestBase
     {
         [Test]
         public void WriteBackExistingObject_NoChange()
         {
-            var alobject = parser.Read(lines);
-            var result = parser.Write(alobject);
+            var alobjects = ALParser.Read(testPath);
+            foreach (var obj in alobjects)
+            {
+                var result = ALParser.Write(obj);
+                Assert.IsNotEmpty(result);
+            }
 
-            Assert.IsNotEmpty(result);
+            var allobjStr = ALParser.Write(alobjects);
+            Assert.IsNotEmpty(allobjStr);
         }
+    
 
         [Test]
         public void WriteBackExistingObject_UpdatedParameter()
         {
-            var alobject = parser.Read(lines);
+            var alobjects = ALParser.Read(testPath);
+            var alobject = alobjects.ElementAt(1);
             alobject.Methods.ElementAt(0).Parameters.ElementAt(0).Name = "UpdatedParameter_NewNameGiven";
 
-            var result = parser.Write(alobject);
+            var result = ALParser.Write(alobjects);
 
             Assert.IsNotEmpty(result);
             Assert.IsTrue(result.Contains("UpdatedParameter_NewNameGiven"));
@@ -35,24 +43,19 @@ namespace ALObjectParser.Tests
             {
                 Id = 81000,
                 Name = "Test Codeunit",
-                Features = new List<ITestFeature>(),
                 Methods = new List<ALMethod>()
             };
 
-            var features = GetFeatures();
-            alobject.Features = features;
-            var scenario = features.ElementAt(0).Scenarios.ElementAt(0);
-
-            var method = new ALMethod { TestMethod = true, Name = "Test Method", MethodKind = "procedure", Scenario = scenario };
+            var method = new ALMethod { TestMethod = true, Name = "TestMethod", MethodKind = "procedure" };
 
             alobject.Methods.Add(method);
 
-            var result = parser.Write(alobject);
+            var result = ALParser.Write(alobject);
 
             Assert.IsNotEmpty(result);
         }
 
-        [Test]
+        /*[Test]
         public void WriteNewObject_FromFeatures()
         {
             var alobject = new ALCodeunit
@@ -199,6 +202,7 @@ namespace ALObjectParser.Tests
             features.Add(feature);
 
             return features;
-        }
+        }*/
     }
+    
 }
