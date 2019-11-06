@@ -90,5 +90,15 @@ namespace ALObjectParser.Tests
             Assert.IsTrue(actual.MethodBody.Comments.Count() == 6);
         }
 
+        [Test]
+        public void Read_Sections()
+        {
+            var result = ALParser.Read(testPath);
+            var actual = result.ElementAt(0).Sections;
+
+            Assert.IsTrue(actual.Count() == 1);
+            Assert.IsTrue(actual.ElementAt(0).Sections.Count() == 2);
+        }
+
     }
 }

@@ -29,6 +29,11 @@
         }
     }
 
+	actions {
+		action(x) {
+			ApplicationArea = All;
+		}
+	}
 }
 
 codeunit 81000 "LookupValue UT Customer"

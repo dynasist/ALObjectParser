@@ -1,18 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace ALObjectParser.Library
 {
-    public class ALObject: IALObject
+    public class ALSection: IALSection
     {
-        public ALObject()
+        public ALSection()
         {
+            Sections = new List<IALSection>();
             Methods = new List<ALMethod>();
             Properties = new List<ALProperty>();
             Comments = new List<ALComment>();
         }
 
-        public int Id { get; set; }
-        public ALObjectType Type { get; set; }
         public string Name { get; set; }
 
         public ICollection<IALSection> Sections { get; set; }

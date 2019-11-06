@@ -80,6 +80,7 @@ namespace ALObjectParser.Library
             GetMethods(Lines, Target);
             GetComments(Lines, Target);
             GetObjectProperties(Lines, Target);
+            GetSections(Lines, Target);
             OnRead(Lines, Target);
 
             return Target;
@@ -90,7 +91,7 @@ namespace ALObjectParser.Library
         /// </summary>
         /// <param name="Lines"></param>
         /// <param name="Target"></param>
-        public virtual void OnRead(IEnumerable<string> Lines, IALObject Target)
+        public virtual void OnRead(IEnumerable<string> Lines, IALSection Target)
         { }
 
         public IEnumerable<IEnumerable<string>> SplitObjectLines(IEnumerable<string> Lines)
@@ -183,7 +184,7 @@ namespace ALObjectParser.Library
         public virtual void OnGetObjectInfo(string Line, IALObject Target)
         { }
 
-        public void GetObjectProperties(IEnumerable<string> Lines, IALObject Target)
+        public void GetObjectProperties(IEnumerable<string> Lines, IALSection Target)
         {
             var firstMatch = false;
             var pattern = @"\s+(.*?)\s+\=\s+(.*)\;$";
@@ -208,7 +209,7 @@ namespace ALObjectParser.Library
             }
         }
 
-        public virtual void OnGetObjectProperty(string Line, IALObject Target, string pattern)
+        public virtual void OnGetObjectProperty(string Line, IALSection Target, string pattern)
         {
             var match = Regex.Match(Line, pattern);
 
@@ -224,7 +225,7 @@ namespace ALObjectParser.Library
         /// </summary>
         /// <param name="Lines">Array of textlines</param>
         /// <param name="Target">Current ALObject instance</param>
-        public void GetMethods(IEnumerable<string> Lines, IALObject Target)
+        public void GetMethods(IEnumerable<string> Lines, IALSection Target)
         {
             var pattern = @"^\s{0,4}(local|procedure|trigger)\s+(.*?)\((.*?)\)\:?(.*)";
             var procedures = Lines
@@ -304,7 +305,7 @@ namespace ALObjectParser.Library
             .ToList();
         }
 
-        public void GetComments(IEnumerable<string> Lines, IALObject Target)
+        public void GetComments(IEnumerable<string> Lines, IALSection Target)
         {
             var comments = GetComments(Lines);
             Target.Comments = comments;
@@ -332,6 +333,33 @@ namespace ALObjectParser.Library
             }
 
             return comments;
+        }
+
+        public void GetSections(IEnumerable<string> Lines, IALSection Target)
+        {
+            var contents = String.Join("\r\n", Lines);
+            var sections = GetSections(contents);
+            Target.Sections = sections;
+        }
+
+        public ICollection<IALSection> GetSections(string Lines)
+        {
+            var result = new List<IALSection>();
+            var matches = Regex.Matches(Lines, @"(.*?)\s+\{((?:[^{}]|(?<counter>\{)|(?<-counter>\}))+(?(counter)(?!)))\}");
+
+            foreach (Match match in matches)
+            {
+                var contents = match.Groups[2].Value;
+                var lines = contents.Split("\r\n");
+                var section = new ALSection();
+                section.Name = match.Groups[1].Value.Trim();
+                GetObjectProperties(lines, section);
+                GetMethods(lines, section);
+                section.Sections = GetSections(contents);
+                result.Add(section);
+            }
+
+            return result;
         }
 
         #endregion
