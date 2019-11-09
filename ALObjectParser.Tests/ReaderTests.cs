@@ -100,5 +100,14 @@ namespace ALObjectParser.Tests
             Assert.IsTrue(actual.ElementAt(0).Sections.Count() == 2);
         }
 
+        [Test]
+        public void Read_GlobalVariables()
+        {
+            var result = ALParser.Read(testPath);
+
+            Assert.IsTrue(result.ElementAt(0).GlobalVariables.Count() == 0);
+            Assert.IsTrue(result.ElementAt(1).GlobalVariables.Count() == 1);
+        }
+
     }
 }

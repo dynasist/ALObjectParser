@@ -6,6 +6,7 @@ namespace ALObjectParser.Library
     {
         public ALObject()
         {
+            GlobalVariables = new List<ALVariable>();
             Methods = new List<ALMethod>();
             Properties = new List<ALProperty>();
             Comments = new List<ALComment>();
@@ -14,7 +15,9 @@ namespace ALObjectParser.Library
         public int Id { get; set; }
         public ALObjectType Type { get; set; }
         public string Name { get; set; }
+        public string TextContent { get; set; }
 
+        public ICollection<ALVariable> GlobalVariables { get; set; }
         public ICollection<IALSection> Sections { get; set; }
         public ICollection<ALMethod> Methods { get; set; }
         public ICollection<ALProperty> Properties { get; set; }

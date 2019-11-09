@@ -5,6 +5,8 @@ namespace ALObjectParser.Library
     public interface IALObject: IALSection
     {
         int Id { get; set; }
-        ALObjectType Type { get; set; }        
+        ALObjectType Type { get; set; }
+
+        public ICollection<ALVariable> GlobalVariables { get; set; }
     }
 }

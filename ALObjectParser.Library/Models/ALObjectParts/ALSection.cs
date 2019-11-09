@@ -15,6 +15,7 @@ namespace ALObjectParser.Library
         }
 
         public string Name { get; set; }
+        public string TextContent { get; set; }
 
         public ICollection<IALSection> Sections { get; set; }
         public ICollection<ALMethod> Methods { get; set; }

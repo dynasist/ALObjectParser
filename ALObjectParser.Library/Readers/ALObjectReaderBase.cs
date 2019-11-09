@@ -80,6 +80,7 @@ namespace ALObjectParser.Library
             GetMethods(Lines, Target);
             GetComments(Lines, Target);
             GetObjectProperties(Lines, Target);
+            GetGlobalVariables(Lines, Target);
             GetSections(Lines, Target);
             OnRead(Lines, Target);
 
@@ -350,16 +351,65 @@ namespace ALObjectParser.Library
             foreach (Match match in matches)
             {
                 var contents = match.Groups[2].Value;
-                var lines = contents.Split("\r\n");
                 var section = new ALSection();
                 section.Name = match.Groups[1].Value.Trim();
-                GetObjectProperties(lines, section);
-                GetMethods(lines, section);
+                section.TextContent = contents;
                 section.Sections = GetSections(contents);
+
+                var subContents = contents;
+                section.Sections.ToList().ForEach(f => {
+                    subContents = subContents.Replace(f.TextContent, "");
+                });
+
+                var lines = subContents.Split("\r\n");
+                GetObjectProperties(lines, section);
+                GetMethods(lines, section);                
                 result.Add(section);
             }
 
             return result;
+        }
+
+        public void GetGlobalVariables(IEnumerable<string> Lines, IALObject Target)
+        {
+            var result = new List<ALVariable>();
+            var patternVar = @"var";
+            var selectedLine = 0;
+            var c = Lines.Count();
+
+            for (int i = 0; i < c; i++)
+            {
+                var line = Lines.ElementAt(i);
+                if (line.Trim() == patternVar)
+                {
+                    if (!Lines.ElementAt(i - 1).Contains("procedure"))
+                    {
+                        selectedLine = i;
+                        break;
+                    }
+                }
+            }
+
+            selectedLine += 1;
+            for (int i = selectedLine; i < c; i++)
+            {
+                var line = Lines.ElementAt(i);
+                var parts = line.Split(":");
+                if (parts.Count() < 2)
+                {
+                    break;
+                }
+
+                var variable = new ALVariable
+                {
+                    Name = parts[0].Trim(),
+                    Type = parts[1].Trim()
+                };
+
+                result.Add(variable);
+            }
+
+            Target.GlobalVariables = result;
         }
 
         #endregion
