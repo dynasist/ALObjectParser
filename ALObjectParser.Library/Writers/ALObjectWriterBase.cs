@@ -65,6 +65,7 @@ namespace ALObjectParser.Library
                 using (var writer = new IndentedTextWriter(stringWriter))
                 {
                     OnWriteObjectHeader(writer, Target);
+                    Target.Write(writer);
                     OnWriteObjectMethods(writer, Target);
                     OnWriteObjectFooter(writer, Target);
                 }

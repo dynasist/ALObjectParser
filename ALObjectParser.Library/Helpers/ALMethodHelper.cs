@@ -28,10 +28,18 @@ namespace ALObjectParser.Library
                     var parameterTxt = "";
                     if (method.Parameters.Count > 0)
                     {
-                        parameterTxt = String.Join(';', method.Parameters.Select(s => $"{(s.IsVar ? "var " : "")}{s.Name}: {s.Type}"));
+                        parameterTxt = String.Join("; ", method.Parameters.Select(s => $"{(s.IsVar ? "var " : "")}{s.Name}: {s.TypeDefinition.Name}"));
                     }
 
-                    writer.WriteLine($"{(method.IsLocal ? "local " : "")}{method.MethodKind} {(method.Name.Contains(" ") ? $"\"{method.Name}\"": method.Name)}({parameterTxt}){(!String.IsNullOrEmpty(method.ReturnType) ? ": " + method.ReturnType : "")}");
+                    string methodType = "procedure";
+                    switch (method.MethodKind)
+                    {
+                        case ALMethodKind.Trigger:
+                            methodType = "trigger";
+                            break;
+                    }
+
+                    writer.WriteLine($"{(method.IsLocal ? "local " : "")}{methodType} {(method.Name.Contains(" ") ? $"\"{method.Name}\"": method.Name)}({parameterTxt}){(method.ReturnTypeDefinition != null ? ": " + method.ReturnTypeDefinition.Name : "")}");
 
                     if (String.IsNullOrEmpty(method.Content))
                     {

@@ -12,11 +12,11 @@ namespace ALObjectParser.Library
         }
 
         public string Name { get; set; }
-        public string MethodKind { get; set; }
+        public ALMethodKind MethodKind { get; set; }
         public bool TestMethod { get; set; }
         public bool IsLocal { get; set; }
         public ICollection<ALParameter> Parameters { get; set; }
-        public string ReturnType { get; set; }
+        public ALReturnTypeDefinition ReturnTypeDefinition { get; set; }
         public string Content { get; set; }
         public ALMethodBody MethodBody { get; set; }
         public ICollection<ALAttribute> Attributes { get; set; }

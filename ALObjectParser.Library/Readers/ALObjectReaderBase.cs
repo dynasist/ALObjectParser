@@ -13,7 +13,7 @@ namespace ALObjectParser.Library
 
         public ALObjectReaderBase()
         {
-            ObjectHeaderPattern = @"^([a-z]+)\s(?(1)([0-9]+|))(.*)";
+            ObjectHeaderPattern = @"\b^(codeunit|page|pageextension|pagecustomization|dotnet|enum|interface|enumextension|query|report|table|tableextension|xmlport|profile|controladdin)\s([0-9]+|.*?)\s?(.*)"; //@"^([a-z]+)\s(?(1)([0-9]+|))(.*)";
         }
 
         #region Read Object from file
@@ -36,6 +36,11 @@ namespace ALObjectParser.Library
         public IEnumerable<IALObject> ReadObjectInfos(string Path)
         {
             var Lines = File.ReadAllLines(Path);
+            return ReadObjectInfos(Lines);
+        }
+
+        public IEnumerable<IALObject> ReadObjectInfos(IEnumerable<string> Lines)
+        {
             var headerLines = GetObjectHeaderLines(Lines);
 
             var result = new List<IALObject>();
@@ -47,6 +52,12 @@ namespace ALObjectParser.Library
             }
 
             return result;
+        }
+
+        public IEnumerable<IALObject> ReadObjectInfosFromString(string objectsStr)
+        {
+            var Lines = objectsStr.Split("\r\n");
+            return ReadObjectInfos(Lines);
         }
 
         /// <summary>
@@ -82,9 +93,11 @@ namespace ALObjectParser.Library
             GetObjectProperties(Lines, Target);
             GetGlobalVariables(Lines, Target);
             GetSections(Lines, Target);
-            OnRead(Lines, Target);
+            Target.ProcessSections();
+            IALObject NewTarget;
+            OnRead(Lines, Target, out NewTarget);
 
-            return Target;
+            return NewTarget;
         }
 
         /// <summary>
@@ -92,8 +105,10 @@ namespace ALObjectParser.Library
         /// </summary>
         /// <param name="Lines"></param>
         /// <param name="Target"></param>
-        public virtual void OnRead(IEnumerable<string> Lines, IALSection Target)
-        { }
+        public virtual void OnRead(IEnumerable<string> Lines, IALObject Target, out IALObject NewTarget)
+        {
+            NewTarget = Target;
+        }
 
         public IEnumerable<IEnumerable<string>> SplitObjectLines(IEnumerable<string> Lines)
         {
@@ -113,7 +128,7 @@ namespace ALObjectParser.Library
             for (int i = 0; i < c; i++)    
             {
                 var startIndex = headers[i];
-                var endIndex = Lines.Count()-1;
+                var endIndex = Lines.Count();
                 var j = i + 1;
                 if (j < c)
                 {
@@ -129,7 +144,7 @@ namespace ALObjectParser.Library
         public IEnumerable<string> GetObjectHeaderLines(IEnumerable<string> Lines)
         {
             var headers = Lines
-                .Where(w => Regex.IsMatch(w.ToLower(), ObjectHeaderPattern));               
+                .Where(w => Regex.IsMatch(w.ToLower(), ObjectHeaderPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline));               
 
             return headers;
         }
@@ -143,7 +158,7 @@ namespace ALObjectParser.Library
         {
             Target = new ALObject();
             var line = Lines
-                .Where(w => Regex.IsMatch(w.ToLower(), ObjectHeaderPattern))
+                .Where(w => Regex.IsMatch(w.ToLower(), ObjectHeaderPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline))
                 .FirstOrDefault();
 
             GetObjectInfo(line, out Target);
@@ -160,7 +175,7 @@ namespace ALObjectParser.Library
 
             if (!string.IsNullOrEmpty(line))
             {
-                var items = Regex.Match(line, ObjectHeaderPattern);
+                var items = Regex.Match(line, ObjectHeaderPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
                 var type = items.Groups[1].Value.ToEnum<ALObjectType>();
                 var idTxt = items.Groups[2].Value;
 
@@ -170,7 +185,12 @@ namespace ALObjectParser.Library
                 {
                     Target.Id = int.Parse(items.Groups[2].Value);
                 }
-                Target.Name = items.Groups[3].Value.Replace("\"", "").Trim();
+                var nameParts = items.Groups[3].Value.Split(" extends ");
+                if (nameParts.Length < 2)
+                {
+                    nameParts = items.Groups[3].Value.Split(" implements ");
+                }
+                Target.Name = nameParts[0].Replace("\"", "").Trim();
                 Target.Type = type;
             }
 
@@ -245,7 +265,15 @@ namespace ALObjectParser.Library
 
                 method.IsLocal = s.Trim().StartsWith("local");
                 var match = Regex.Match(s, pattern);
-                method.MethodKind = match.Groups[1].Value;
+                switch (match.Groups[1].Value.ToLower())
+                {
+                    case "procedure":
+                        method.MethodKind = ALMethodKind.Method;
+                        break;
+                    case "trigger":
+                        method.MethodKind = ALMethodKind.Trigger;
+                        break;
+                }
                 method.Name = match.Groups[2].Value;
 
                 if (match.Groups.Count > 3)
@@ -259,7 +287,7 @@ namespace ALObjectParser.Library
                             var parts = s.Split(':');
                             result.IsVar = parts[0].Trim().StartsWith("var ");
                             result.Name = parts[0].Replace("var ", "").Trim();
-                            result.Type = parts[1];
+                            result.TypeDefinition = new ALTypeDefinition { Name = parts[1] };
 
                             return result;
                         }).ToList();
@@ -268,7 +296,7 @@ namespace ALObjectParser.Library
 
                 if (match.Groups.Count > 4)
                 {
-                    method.ReturnType = match.Groups[4].Value;
+                    method.ReturnTypeDefinition = new ALReturnTypeDefinition { Name = match.Groups[4].Value };
                 }
 
                 // Get Method body from var|begin to end;
@@ -403,7 +431,7 @@ namespace ALObjectParser.Library
                 var variable = new ALVariable
                 {
                     Name = parts[0].Trim(),
-                    Type = parts[1].Trim()
+                    TypeDefinition = new ALTypeDefinition { Name = parts[1].Trim() }
                 };
 
                 result.Add(variable);

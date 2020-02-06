@@ -20,7 +20,9 @@ namespace ALObjectParser.Library
             Add(ALObjectType.controladdin, typeof(ALTable));
             Add(ALObjectType.dotnet, typeof(ALTable));
             Add(ALObjectType.@enum, typeof(ALTable));
+            Add(ALObjectType.enumextension, typeof(ALTable));
             Add(ALObjectType.profile, typeof(ALTable));
+            Add(ALObjectType.@interface, typeof(ALTable));
         }
 
         public static IALObject CreateInstance(ALObjectType type)

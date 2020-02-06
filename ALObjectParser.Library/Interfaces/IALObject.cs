@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.CodeDom.Compiler;
+using System.Collections.Generic;
 
 namespace ALObjectParser.Library
 {
@@ -8,5 +9,10 @@ namespace ALObjectParser.Library
         ALObjectType Type { get; set; }
 
         public ICollection<ALVariable> GlobalVariables { get; set; }
+
+        virtual void ProcessSections() { }
+
+        void Write(IndentedTextWriter writer) { }
+
     }
 }

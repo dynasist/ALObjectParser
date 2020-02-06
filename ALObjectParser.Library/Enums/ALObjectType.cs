@@ -18,6 +18,8 @@ namespace ALObjectParser
         controladdin,
         @enum,
         dotnet,
-        profile
+        profile,
+        enumextension,
+        @interface
     }
 }
