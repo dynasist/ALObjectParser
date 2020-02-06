@@ -49,7 +49,7 @@ namespace ALObjectParser.Tests
         public void Read_Procedure_Verify_ReturnType(int index, bool expected)
         {
             var result = ALParser.ReadSingle(testPath);
-            var actual = string.IsNullOrEmpty(result.Methods.ElementAt(index).ReturnType.Trim()) == expected;
+            var actual = string.IsNullOrEmpty(result.Methods.ElementAt(index).ReturnTypeDefinition.Name.Trim()) == expected;
 
             Assert.IsTrue(actual);
         }

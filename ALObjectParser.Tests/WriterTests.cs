@@ -46,7 +46,7 @@ namespace ALObjectParser.Tests
                 Methods = new List<ALMethod>()
             };
 
-            var method = new ALMethod { TestMethod = true, Name = "TestMethod", MethodKind = "procedure" };
+            var method = new ALMethod { TestMethod = true, Name = "TestMethod", MethodKind = ALMethodKind.Method };
 
             alobject.Methods.Add(method);
 
