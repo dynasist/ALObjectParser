@@ -322,11 +322,25 @@ namespace ALObjectParser.Library
                 method.Content = body;
 
                 // Check for Test Attribute
-                start = txtLines.IndexOf(s) - 1;
-                var testMethod = Lines.ElementAt(start);
-                if (testMethod.ToLower().Contains("test"))
+                if (method.MethodKind == ALMethodKind.Method)
                 {
-                    method.TestMethod = true;
+                    start = txtLines.IndexOf(s) - 1;
+                    var testMethod = Lines.ElementAt(start);
+                    while (testMethod.Trim() != String.Empty && !testMethod.ToLower().Contains("end;"))
+                    {
+                        if (testMethod.ToLower().Contains("[test"))
+                        {
+                            method.TestMethod = true;
+                            break;
+                        }
+
+                        start -= 1;
+                        if (start < 0)
+                        {
+                            break;
+                        }
+                        testMethod = Lines.ElementAt(start);
+                    }
                 }
 
                 return method;
