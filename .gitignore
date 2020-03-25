@@ -6,3 +6,6 @@
 *Tests/bin
 **/obj
 /ALObjectParser.Library/ALObjectParser.Library.csproj.user
+*/bin/*
+ALObjectParser.Library/bin/Debug/netcoreapp3.0/ALObjectParser.Library.dll
+ALObjectParser.Library/bin/Debug/netcoreapp3.0/ALObjectParser.Library.pdb
