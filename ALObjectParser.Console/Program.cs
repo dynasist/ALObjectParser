@@ -21,7 +21,7 @@ namespace ALObjectParser.Cmd
                 Console.WriteLine();
                 foreach (var param in method.Parameters)
                 {
-                    Console.WriteLine($"  Parameter: #{param.Name} {param.Type}");
+                    Console.WriteLine($"  Parameter: #{param.Name} {param.TypeDefinition?.Name}");
                 }
                 Console.WriteLine("-----------------------------------------------------------");
             }
