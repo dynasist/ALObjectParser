@@ -39,16 +39,19 @@ namespace ALObjectParser.Library
                             break;
                     }
 
-                    writer.WriteLine($"{(method.IsLocal ? "local " : "")}{methodType} {(method.Name.Contains(" ") ? $"\"{method.Name}\"": method.Name)}({parameterTxt}){(method.ReturnTypeDefinition != null ? ": " + method.ReturnTypeDefinition.Name : "")}");
+                    writer.WriteLine($"{(method.IsLocal ? "local " : "")}{methodType} {(method.Name.Contains(" ") ? $"\"{method.Name}\"" : method.Name)}({parameterTxt}){(method.ReturnTypeDefinition != null ? ": " + method.ReturnTypeDefinition.Name : "")}{(method.IsMethodDeclaration ? ";" : "")}");
 
-                    if (String.IsNullOrEmpty(method.Content))
+                    if (!method.IsMethodDeclaration)
                     {
-                        writer.WriteLine("begin");
-                        writer.WriteLine("end;");
-                    }
-                    else
-                    {
-                        writer.WriteLine(method.Content);
+                        if (String.IsNullOrEmpty(method.Content))
+                        {
+                            writer.WriteLine("begin");
+                            writer.WriteLine("end;");
+                        }
+                        else
+                        {
+                            writer.WriteLine(method.Content);
+                        }
                     }
 
                     writer.Indent--;

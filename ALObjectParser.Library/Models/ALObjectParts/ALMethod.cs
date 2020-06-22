@@ -14,6 +14,7 @@ namespace ALObjectParser.Library
         public string Name { get; set; }
         public ALMethodKind MethodKind { get; set; }
         public bool TestMethod { get; set; }
+        public bool IsMethodDeclaration { get; set; }
         public bool IsLocal { get; set; }
         public ICollection<ALParameter> Parameters { get; set; }
         public ALReturnTypeDefinition ReturnTypeDefinition { get; set; }

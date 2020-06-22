@@ -257,10 +257,6 @@ namespace ALObjectParser.Library
             {
                 return;
             }
-            if (Target is IALObject && ((IALObject)Target).Type == ALObjectType.@interface)
-            {
-                return; //An interface has no procedures. There are just procedure declarations
-            }
 
             Target.Methods = procedures
             .Select(s =>
@@ -306,24 +302,33 @@ namespace ALObjectParser.Library
                 // Get Method body from var|begin to end;
                 var txtLines = Lines.ToList();
                 var start = txtLines.IndexOf(s) + 1;
-                var nextLine = txtLines.GetRange(start, txtLines.Count() - start - 1).FirstOrDefault(f => Regex.IsMatch(f, pattern));
-                var end = txtLines.IndexOf(nextLine);
-                if (end == -1)
+                string beginPattern = @"^\s{0,4}(begin)\s*$";
+                string beginText = txtLines.GetRange(start, txtLines.Count() - start - 1).FirstOrDefault(f => Regex.IsMatch(f, beginPattern));
+                if (!string.IsNullOrEmpty(beginText))
                 {
-                    end = Lines.Count();
+                    var nextLine = txtLines.GetRange(start, txtLines.Count() - start - 1).FirstOrDefault(f => Regex.IsMatch(f, pattern));
+                    var end = txtLines.IndexOf(nextLine);
+                    if (end == -1)
+                    {
+                        end = Lines.Count();
+                    }
+
+                    var bodyLines = txtLines.GetRange(start, end - start - 1);
+                    var body = string.Join("\r\n", bodyLines);
+                    var comments = GetComments(bodyLines);
+                    method.MethodBody = new ALMethodBody
+                    {
+                        Comments = comments,
+                        Content = body,
+                        ContentLines = bodyLines
+                    };
+
+                    method.Content = body;
                 }
-
-                var bodyLines = txtLines.GetRange(start, end - start - 1);
-                var body = string.Join("\r\n", bodyLines);
-                var comments = GetComments(bodyLines);
-                method.MethodBody = new ALMethodBody
+                else
                 {
-                    Comments = comments,
-                    Content = body,
-                    ContentLines = bodyLines
-                };
-
-                method.Content = body;
+                    method.IsMethodDeclaration = true;
+                }
 
                 // Check for Test Attribute
                 if (method.MethodKind == ALMethodKind.Method)
