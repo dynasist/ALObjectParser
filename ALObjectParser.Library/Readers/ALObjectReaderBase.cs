@@ -70,8 +70,8 @@ namespace ALObjectParser.Library
             return Read(Lines);
         }
 
-        public T Read<T>(string Path) 
-            where T: ALObject
+        public T Read<T>(string Path)
+            where T : ALObject
         {
             var Lines = File.ReadAllLines(Path);
             IALObject result = Read(Lines);
@@ -114,7 +114,7 @@ namespace ALObjectParser.Library
         {
             var contents = Lines.ToList();
             var headerLines = GetObjectHeaderLines(contents);
-            var headers = headerLines                
+            var headers = headerLines
                 .Select(s => contents.IndexOf(s))
                 .ToList();
 
@@ -125,7 +125,7 @@ namespace ALObjectParser.Library
 
             var result = new List<IEnumerable<string>>();
             var c = headers.Count();
-            for (int i = 0; i < c; i++)    
+            for (int i = 0; i < c; i++)
             {
                 var startIndex = headers[i];
                 var endIndex = Lines.Count();
@@ -135,7 +135,7 @@ namespace ALObjectParser.Library
                     endIndex = headers[j];
                 }
 
-                result.Add(contents.GetRange(startIndex, endIndex-startIndex));
+                result.Add(contents.GetRange(startIndex, endIndex - startIndex));
             }
 
             return result;
@@ -144,7 +144,7 @@ namespace ALObjectParser.Library
         public IEnumerable<string> GetObjectHeaderLines(IEnumerable<string> Lines)
         {
             var headers = Lines
-                .Where(w => Regex.IsMatch(w.ToLower(), ObjectHeaderPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline));               
+                .Where(w => Regex.IsMatch(w.ToLower(), ObjectHeaderPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline));
 
             return headers;
         }
@@ -302,24 +302,33 @@ namespace ALObjectParser.Library
                 // Get Method body from var|begin to end;
                 var txtLines = Lines.ToList();
                 var start = txtLines.IndexOf(s) + 1;
-                var nextLine = txtLines.GetRange(start, txtLines.Count() - start - 1).FirstOrDefault(f => Regex.IsMatch(f, pattern));
-                var end = txtLines.IndexOf(nextLine);
-                if (end == -1)
+                string beginPattern = @"^\s{0,4}(begin)\s*$";
+                string beginText = txtLines.GetRange(start, txtLines.Count() - start - 1).FirstOrDefault(f => Regex.IsMatch(f, beginPattern));
+                if (!string.IsNullOrEmpty(beginText))
                 {
-                    end = Lines.Count();
+                    var nextLine = txtLines.GetRange(start, txtLines.Count() - start - 1).FirstOrDefault(f => Regex.IsMatch(f, pattern));
+                    var end = txtLines.IndexOf(nextLine);
+                    if (end == -1)
+                    {
+                        end = Lines.Count();
+                    }
+
+                    var bodyLines = txtLines.GetRange(start, end - start - 1);
+                    var body = string.Join("\r\n", bodyLines);
+                    var comments = GetComments(bodyLines);
+                    method.MethodBody = new ALMethodBody
+                    {
+                        Comments = comments,
+                        Content = body,
+                        ContentLines = bodyLines
+                    };
+
+                    method.Content = body;
                 }
-
-                var bodyLines = txtLines.GetRange(start, end - start - 1);
-                var body = string.Join("\r\n", bodyLines);
-                var comments = GetComments(bodyLines);
-                method.MethodBody = new ALMethodBody
+                else
                 {
-                    Comments = comments,
-                    Content = body,
-                    ContentLines = bodyLines
-                };
-
-                method.Content = body;
+                    method.IsMethodDeclaration = true;
+                }
 
                 // Check for Test Attribute
                 if (method.MethodKind == ALMethodKind.Method)
@@ -363,7 +372,8 @@ namespace ALObjectParser.Library
             for (int i = 0; i < c; i++)
             {
                 var line = Lines.ElementAt(i);
-                if (Regex.IsMatch(line, pattern)) {
+                if (Regex.IsMatch(line, pattern))
+                {
 
                     var comment = new ALComment
                     {
@@ -399,13 +409,14 @@ namespace ALObjectParser.Library
                 section.Sections = GetSections(contents);
 
                 var subContents = contents;
-                section.Sections.ToList().ForEach(f => {
+                section.Sections.ToList().ForEach(f =>
+                {
                     subContents = subContents.Replace(f.TextContent, "");
                 });
 
                 var lines = subContents.Split("\r\n");
                 GetObjectProperties(lines, section);
-                GetMethods(lines, section);                
+                GetMethods(lines, section);
                 result.Add(section);
             }
 
