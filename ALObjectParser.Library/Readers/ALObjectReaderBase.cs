@@ -302,12 +302,12 @@ namespace ALObjectParser.Library
                 // Get Method body from var|begin to end;
                 var txtLines = Lines.ToList();
                 var start = txtLines.IndexOf(s) + 1;
+                var nextLine = txtLines.GetRange(start, txtLines.Count() - start - 1).FirstOrDefault(f => Regex.IsMatch(f, pattern));
+                var end = txtLines.IndexOf(nextLine);
                 string beginPattern = @"^\s{0,4}(begin)\s*$";
                 string beginText = txtLines.GetRange(start, txtLines.Count() - start - 1).FirstOrDefault(f => Regex.IsMatch(f, beginPattern));
                 if (!string.IsNullOrEmpty(beginText))
                 {
-                    var nextLine = txtLines.GetRange(start, txtLines.Count() - start - 1).FirstOrDefault(f => Regex.IsMatch(f, pattern));
-                    var end = txtLines.IndexOf(nextLine);
                     if (end == -1)
                     {
                         end = Lines.Count();
@@ -329,18 +329,32 @@ namespace ALObjectParser.Library
                 {
                     method.IsMethodDeclaration = true;
                 }
+                method.Attributes = new List<ALAttribute>();
 
-                // Check for Test Attribute
-                if (method.MethodKind == ALMethodKind.Method)
-                {
+                // Check for Attributes
+                end = txtLines.IndexOf(s) - 1;
                     start = txtLines.IndexOf(s) - 1;
                     var testMethod = Lines.ElementAt(start);
-                    while (testMethod.Trim() != String.Empty && !testMethod.ToLower().Contains("end;"))
+                while (testMethod.Trim() != String.Empty && 
+                       !testMethod.ToLower().Contains("end;") &&
+                       !testMethod.ToLower().Contains("{"))
                     {
                         if (testMethod.ToLower().Contains("[test"))
                         {
                             method.TestMethod = true;
-                            break;
+                        //break;
+                    }
+
+                    var attrMatch = Regex.Match(testMethod, @"\[(\w+)(.*)\]");
+                    if (attrMatch.Success)
+                    {
+                        var attr = new ALAttribute
+                        {
+                            Name = attrMatch.Groups[1].Value,
+                            Content = testMethod.Trim()
+                        };
+                        attr.IsEvent = attr.Name.ToLower().Contains("event");
+                        method.Attributes.Add(attr);
                         }
 
                         start -= 1;
@@ -350,7 +364,33 @@ namespace ALObjectParser.Library
                         }
                         testMethod = Lines.ElementAt(start);
                     }
+
+                start += 1;
+                end += 1;
+                var linesAboveMethod = txtLines
+                    .GetRange(start, end - start)
+                    .Select(s => s.Trim())
+                    .Where(w => !w.StartsWith("["));
+                    //.Where(w => w.StartsWith("//") || w.StartsWith("/*") || w.EndsWith("*/"));
+                var txtAboveMethod = string.Join("\r\n", linesAboveMethod);
+                txtAboveMethod = txtAboveMethod
+                    .Replace("///", "")
+                    .Replace("//", "")
+                    .Replace("/*", "")
+                    .Replace("*/", "");
+
+                var methodComments = new List<ALComment>();
+                if (!string.IsNullOrEmpty(txtAboveMethod))
+                {
+                    methodComments.Add(new ALComment
+                    {
+                        Content = txtAboveMethod.Trim(),
+                        StartPos = start,
+                        EndPos = end
+                    });
                 }
+
+                method.Comments = methodComments;
 
                 return method;
             })
