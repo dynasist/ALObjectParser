@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace ALObjectParser.Library
@@ -22,5 +23,6 @@ namespace ALObjectParser.Library
         public ALMethodBody MethodBody { get; set; }
         public ICollection<ALAttribute> Attributes { get; set; }
         public IEnumerable<ALComment> Comments { get; set; }
+        public Range MethodRange { get; set; }
     }
 }
