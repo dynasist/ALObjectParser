@@ -65,6 +65,7 @@ namespace ALObjectParser.Library
                 using (var writer = new IndentedTextWriter(stringWriter))
                 {
                     OnWriteObjectHeader(writer, Target);
+                    OnWriteObjectProperties(writer, Target);
                     Target.Write(writer);
                     OnWriteObjectMethods(writer, Target);
                     OnWriteObjectFooter(writer, Target);
@@ -81,6 +82,13 @@ namespace ALObjectParser.Library
             writer.WriteLine($"{Target.Type} {Target.Id} {(Target.Name.Contains(' ') ? $"\"{Target.Name}\"" : Target.Name)}");
             writer.WriteLine("{");
         }
+        
+        private void OnWriteObjectProperties(IndentedTextWriter writer, IALObject target)
+        {
+            foreach (ALProperty aLProperty in target.Properties)
+                writer.WriteLine(aLProperty.Name + " = " + aLProperty.Value + ";");
+        }
+
 
         public virtual void OnWriteObjectMethods(IndentedTextWriter writer, IALObject Target)
         {
