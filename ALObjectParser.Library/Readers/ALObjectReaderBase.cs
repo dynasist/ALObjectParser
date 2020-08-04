@@ -93,6 +93,7 @@ namespace ALObjectParser.Library
             GetObjectProperties(Lines, Target);
             GetGlobalVariables(Lines, Target);
             GetSections(Lines, Target);
+            GetRange(Lines, Target);
             Target.ProcessSections();
             IALObject NewTarget;
             OnRead(Lines, Target, out NewTarget);
@@ -248,7 +249,7 @@ namespace ALObjectParser.Library
         /// <param name="Target">Current ALObject instance</param>
         public void GetMethods(IEnumerable<string> Lines, IALSection Target)
         {
-            var pattern = @"^\s{0,4}(local|procedure|trigger)\s+(.*?)\((.*?)\)\:?(.*)";
+            var pattern = @"^\s{0,4}(local procedure|procedure|trigger)\s+(.*?)\((.*?)\)\:?(.*)";
             var procedures = Lines
                 .Where(w => Regex.IsMatch(w, pattern))
                 .ToList();
@@ -333,15 +334,15 @@ namespace ALObjectParser.Library
 
                 // Check for Attributes
                 end = txtLines.IndexOf(s) - 1;
-                    start = txtLines.IndexOf(s) - 1;
-                    var testMethod = Lines.ElementAt(start);
-                while (testMethod.Trim() != String.Empty && 
+                start = txtLines.IndexOf(s) - 1;
+                var testMethod = Lines.ElementAt(start);
+                while (testMethod.Trim() != String.Empty &&
                        !testMethod.ToLower().Contains("end;") &&
                        !testMethod.ToLower().Contains("{"))
+                {
+                    if (testMethod.ToLower().Contains("[test"))
                     {
-                        if (testMethod.ToLower().Contains("[test"))
-                        {
-                            method.TestMethod = true;
+                        method.TestMethod = true;
                         //break;
                     }
 
@@ -355,15 +356,15 @@ namespace ALObjectParser.Library
                         };
                         attr.IsEvent = attr.Name.ToLower().Contains("event");
                         method.Attributes.Add(attr);
-                        }
-
-                        start -= 1;
-                        if (start < 0)
-                        {
-                            break;
-                        }
-                        testMethod = Lines.ElementAt(start);
                     }
+
+                    start -= 1;
+                    if (start < 0)
+                    {
+                        break;
+                    }
+                    testMethod = Lines.ElementAt(start);
+                }
 
                 start += 1;
                 end += 1;
@@ -371,7 +372,7 @@ namespace ALObjectParser.Library
                     .GetRange(start, end - start)
                     .Select(s => s.Trim())
                     .Where(w => !w.StartsWith("["));
-                    //.Where(w => w.StartsWith("//") || w.StartsWith("/*") || w.EndsWith("*/"));
+                //.Where(w => w.StartsWith("//") || w.StartsWith("/*") || w.EndsWith("*/"));
                 var txtAboveMethod = string.Join("\r\n", linesAboveMethod);
                 txtAboveMethod = txtAboveMethod
                     .Replace("///", "")
@@ -426,6 +427,25 @@ namespace ALObjectParser.Library
             }
 
             return comments;
+        }
+        public void GetRange(IEnumerable<string> Lines, IALObject Target)
+        {
+            string contents = String.Join("__", Lines);
+            foreach (ALMethod method in Target.Methods)
+            {
+                Match match = Regex.Match(contents, $"(.*)(local)? (procedure|trigger) {method.Name}\\(", RegexOptions.IgnoreCase);
+                if (!match.Success)
+                    continue;
+                string textBeforeProcedure = contents.Substring(0, match.Groups[1].Length);
+                int startLineNo = (textBeforeProcedure.Length - textBeforeProcedure.Replace("__", "").Length) / 2;
+                string pattern = ".{" + textBeforeProcedure.Length + "}.+?__    end;";
+                match = Regex.Match(contents, pattern, RegexOptions.IgnoreCase);
+                if (!match.Success)
+                    continue;
+                string textUntilEndOfProcedure = contents.Substring(0, match.Groups[0].Length);
+                int endLineNo = (textUntilEndOfProcedure.Length - textUntilEndOfProcedure.Replace("__", "").Length) / 2;
+                method.MethodRange = new Range(startLineNo, endLineNo);
+            }
         }
 
         public void GetSections(IEnumerable<string> Lines, IALSection Target)
